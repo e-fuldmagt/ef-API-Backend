@@ -1,3 +1,4 @@
+const { required } = require("@hapi/joi/lib/base");
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
@@ -17,23 +18,40 @@ const userSchema = new Schema({
     type: String,
   },
   phone: {
-    type: String,
-    required: true,
+    code: {
+      type: String,
+    },
+    number: {
+      type: Number,
+    },
   },
   email: {
     type: String,
+    unique: true,
     required: true,
   },
-  type: {
-    type: String,
-    required: true,
+  admin: {
+    type: Boolean,
+    default: false,
   },
   password: {
     type: String,
   },
-  isGuest: {
+  loginAttempt: {
+    type: Number,
+    default: 0,
+  },
+  locked: {
     type: Boolean,
-    required: true,
+    default: false,
+  },
+  deleted: {
+    type: Boolean,
+    default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 module.exports = mongoose.model("user", userSchema, "users");
