@@ -1,34 +1,21 @@
-const User = require("../models/user");
+const User = require("../../models/user");
 const Joi = require("@hapi/joi");
-const Otp = require("../models/otp");
+const Otp = require("../../models/otp");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv").config();
 
 const otpGenerator = require("otp-generator");
-const mailService = require("../services/MailService");
+const mailService = require("../../services/MailService");
 
 const accountSid = "ACfcb9da3700c2632b98d2c9dbd6ebd3d3";
 const authToken = "5e5c1a2d02929d0b6d09c31535fbd03b";
 const client = require("twilio")(accountSid, authToken);
 
-const { userSchema } = require("../validation/userValidation");
+const { userSchema } = require("../../validation/userValidation");
+const { passwordSchema } = require("../../validation/passwordSchema");
 
 // Define Joi schema for email validation
 const emailSchema = Joi.string().email().required();
-
-const passwordSchema = Joi.object({
-  password: Joi.string()
-    .min(8)
-    .pattern(new RegExp("^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9])"))
-    .required()
-    .messages({
-      "string.min": "Password must be at least 8 characters long",
-      "string.pattern.base":
-        "Password must contain at least one uppercase letter, one special character, and one number",
-      "any.required": "Password is required",
-    }),
-});
 
 const userController = {
   // ......................send otp .............................
@@ -171,7 +158,6 @@ const userController = {
           });
         })
         .catch((err) => {
-          console.log("error is", err);
           return res.status(400).json({
             success: false,
             data: { error: err },
@@ -192,7 +178,6 @@ const userController = {
       let userData = req.body;
 
       const { error } = userSchema.validate(userData);
-      console.log("error is", error);
       if (error) {
         // Return validation errors
         return res.status(400).json({
@@ -270,8 +255,6 @@ const userController = {
         abortEarly: false,
       });
 
-      console.log("in set password", error, password, id);
-
       if (error) {
         // Return validation errors
         return res.status(400).json({
@@ -345,7 +328,6 @@ const userController = {
           },
         });
       } else {
-        console.log("in else");
         const matchPass = await bcrypt.compare(password, user.password);
         if (!matchPass) {
           if (user.loginAttempt >= 3) {
@@ -364,7 +346,6 @@ const userController = {
           }
           res.status(400).send({ success: false, data: { error: msg } });
         } else {
-          console.log("in else");
           await User.findOneAndUpdate({ email }, { loginAttempt: 0 });
           const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
           res.status(200).send({
@@ -452,6 +433,42 @@ const userController = {
       res.status(400).json({
         success: false,
         data: { error: error.message },
+      });
+    }
+  },
+
+   // ......................update user .............................
+   async updateUser(req, res, next) {
+    try {
+      const id = req.params.id;
+
+      let userExists = await User.findOne({ _id: id })
+
+      if (!userExists) {
+        return res
+          .status(400)
+          .send({ success: false, data: { error: "User doesn't exist" } });
+      } else {
+        
+          await User.findOneAndUpdate({ _id: id }, req.body)
+            .then((result) => {
+              // Changed parameter name from res to result
+              return res.status(200).send({
+                success: true,
+                data: { message: "details updated successfully" },
+              });
+            })
+            .catch((err) => {
+              return res
+                .status(400)
+                .send({ success: false, data: { error: err.message } });
+            });
+      }
+    } catch (error) {
+      // Handle any unexpected errors
+      res.status(500).send({
+        success: false,
+        data: { error: "Server Error" },
       });
     }
   },

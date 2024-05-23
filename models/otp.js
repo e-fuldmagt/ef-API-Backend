@@ -13,7 +13,6 @@ const otpSchema = new Schema({
   },
   email: {
     type: String,
-    required: true,
     unique: true,
   },
   emailVerification: {

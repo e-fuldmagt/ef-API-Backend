@@ -1,11 +1,26 @@
-const { type } = require("@hapi/joi/lib/extend");
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
-const userSchema = new Schema({
+const companySchema = new Schema({
+  user: {
+    type: mongoose.Schema.ObjectId,
+    required: true,
+    ref: "user",
+  },
+  cvr: {
+    type: Number,
+    required: true,
+    unique: true,
+    validate: {
+      validator: function (value) {
+        return value.toString().length === 8;
+      },
+      message: "CVR must be exactly 8 digits",
+    },
+  },
   name: {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    type: String,
+    required: true,
   },
   address: {
     address: { type: String, required: true },
@@ -20,41 +35,29 @@ const userSchema = new Schema({
   phone: {
     code: {
       type: String,
+      required: true,
     },
     number: {
       type: Number,
+      required: true,
     },
+  },
+  signature:{
+    type: String,
   },
   email: {
     type: String,
     unique: true,
     required: true,
   },
-  admin: {
-    type: Boolean,
-    default: false,
-  },
-  password: {
-    type: String,
-  },
-  loginAttempt: {
-    type: Number,
-    default: 0,
-  },
-  locked: {
-    type: Boolean,
-    default: false,
-  },
   deleted: {
     type: Boolean,
     default: false,
-  },
-  signature:{
-    type: String,
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
-module.exports = mongoose.model("user", userSchema, "users");
+
+module.exports = mongoose.model("company", companySchema, "companies");
