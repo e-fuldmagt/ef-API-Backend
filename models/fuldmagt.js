@@ -3,15 +3,25 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const fuldmagtSchema = new Schema({
-  form: {
-    type: String,
-    required: true,
+  createdByUser: {
+    type: mongoose.Schema.ObjectId, 
+    ref: "user"
   },
-  visibility: {
-    user: [{ type: mongoose.Schema.ObjectId, required: true, ref: "user" }],
-    company: [
-      { type: mongoose.Schema.ObjectId, required: true, ref: "company" },
-    ],
+  createdByCompany: {
+    type: mongoose.Schema.ObjectId, 
+    ref: "company"
   },
+  pickByUser: {
+    type: mongoose.Schema.ObjectId, 
+    ref: "user"
+  },
+  pickByCompany: {
+    type: mongoose.Schema.ObjectId, 
+    ref: "company"
+  },
+  expiry:{
+    type: Date,
+    required: true
+  }
 });
 module.exports = mongoose.model("fuldmagt", fuldmagtSchema, "fuldmagts");

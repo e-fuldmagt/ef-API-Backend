@@ -1,6 +1,7 @@
 const express = require("express");
 
 // routes
+const userOtpController = require("../controller/user/otp")
 const userController = require("../controller/user/user");
 const userSignatureController = require("../controller/user/signature")
 
@@ -9,11 +10,12 @@ const {upload, uploadFileToFirebase} = require("../services/Firebase_SignStorage
 const User = require('../models/user')
 const userRouter = express.Router();
 
-userRouter.post("/sendOTPToEmail", userController.sendOTPToEmail);
+userRouter.post("/sendOTPToEmail", userOtpController.sendOTPToEmail);
 userRouter.post("/register", userController.registerUser);
+userRouter.post("/createPrivateUser", userController.createUser);
 
-userRouter.put("/verifyEmail", userController.verifyEmail);
-userRouter.put("/sendOTPToNumber", userController.sendOtpToNumber);
+userRouter.put("/verifyEmail", userOtpController.verifyEmail);
+userRouter.put("/sendOTPToNumber", userOtpController.sendOtpToNumber);
 userRouter.put("/setPassword/:id", userController.setPassword);
 userRouter.put("/login", userController.loginUser);
 userRouter.put("/forgetPassword", userController.forgetPassword);
