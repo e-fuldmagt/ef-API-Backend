@@ -31,7 +31,7 @@ const userController = {
         // check if number and email is verfied
         const verifiedUser = await Otp.findOne({
           email,
-          phone,
+          // phone,
           emailVerification: true,
           // numberVerification: true,
         });
