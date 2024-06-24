@@ -13,6 +13,8 @@ const { passwordSchema } = require("../../validation/passwordSchema");
 // Define Joi schema for email validation
 const emailSchema = Joi.string().email().required();
 
+
+
 const userController = {
   // ----------------- register User -----------------
   async registerUser(req, res) {
@@ -146,43 +148,45 @@ const userController = {
       });
     }
   },
-  // ----------------- set Password -----------------
+  //...................... set password ..........
   async setPassword(req, res) {
+    const { id } = req.params;
+    const { password } = req.body;
+  
+    console.log("id..", id,"..password..", password);
     try {
-      const { id } = req.params;
-      const { password } = req.body;
-
-      const { error } = passwordSchema.validate(req.body, {
-        abortEarly: false,
-      });
-
+      const { error } = passwordSchema.validate(req.body, { abortEarly: false });
+  
       if (error) {
+        console.log("Validation error:", error);
         // Return validation errors
         return res.status(400).json({
           success: false,
           data: { error: error.details.map((detail) => detail.message) },
         });
-      } else {
-        const salt = await bcrypt.genSalt(10);
-        const hash_Password = await bcrypt.hash(password, salt);
-        await User.findOneAndUpdate({ _id: id }, { password: hash_Password })
-          .then((result) => {
-            // Changed parameter name from res to result
-            return res.status(200).send({
-              success: true,
-              data: { message: "Password added successfully" },
-            });
-          })
-          .catch((err) => {
-            return res
-              .status(400)
-              .send({ success: false, data: { error: err.message } });
+      } 
+  
+      const salt = await bcrypt.genSalt(10);
+      const hash_Password = await bcrypt.hash(password, salt);
+      await User.findOneAndUpdate({ _id: id }, { password: hash_Password })
+        .then((result) => {
+          return res.status(200).send({
+            success: true,
+            data: { message: "Password added successfully" },
           });
-      }
+        })
+        .catch((err) => {
+          console.log("Error updating password:", err);
+          return res
+            .status(400)
+            .send({ success: false, data: { error: err.message } });
+        });
+  
     } catch (error) {
-      return res.status(404).send({
+      console.log("Unexpected error:", error);
+      return res.status(500).send({
         success: false,
-        data: { error: error.response },
+        data: { error: error.message },
       });
     }
   },

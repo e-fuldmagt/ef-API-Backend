@@ -1,6 +1,7 @@
 // Define the Joi schema for validation
 
-const Joi = require("@hapi/joi"); 
+const Joi = require('joi');
+
 
 const passwordSchema = Joi.object({
     password: Joi.string()
