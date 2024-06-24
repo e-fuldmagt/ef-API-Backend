@@ -33,7 +33,7 @@ const userController = {
           email,
           phone,
           emailVerification: true,
-          numberVerification: true,
+          // numberVerification: true,
         });
 
         if (verifiedUser) {
