@@ -13,8 +13,6 @@ const { passwordSchema } = require("../../validation/passwordSchema");
 // Define Joi schema for email validation
 const emailSchema = Joi.string().email().required();
 
-
-
 const userController = {
   // ----------------- register User -----------------
   async registerUser(req, res) {
@@ -41,7 +39,10 @@ const userController = {
         if (verifiedUser) {
           // check is user already exists
           const phoneExists = await User.findOne({
-            phone,
+            $or: [
+              { phone }, // Check if phone number exists
+              { email }, // Check if email exists
+            ],
           });
           if (phoneExists) {
             res.status(400).send({
@@ -90,10 +91,9 @@ const userController = {
     }
   },
 
-   // ----------------- create User without verification (for company) -----------------
-   async createUser(req, res) {
+  // ----------------- create User without verification (for company) -----------------
+  async createUser(req, res) {
     try {
-
       let userData = req.body;
 
       const { error } = userSchema.validate(userData);
@@ -104,42 +104,41 @@ const userController = {
           data: { error: error.details.map((detail) => detail.message) },
         });
       } else {
-          if (phoneExists) {
-            res.status(400).send({
-              success: false,
-              data: { error: "User with this phone number already exists" },
-            });
-          } else {
-
-            const salt = await bcrypt.genSalt(10);
-            const hash_Password = await bcrypt.hash(req.body.password, salt);
-            userData.password = hash_Password
-            // add user
-            let user = new User(userData);
-            user.save((error, registereduser) => {
-              if (error) {
-                res.status(400).send({
-                  success: false,
-                  data: { error: error.message },
-                });
-              } else {
-                const token = jwt.sign(
-                  { _id: registereduser._id },
-                  process.env.TOKEN_SECRET
-                );
-                res.status(200).send({
-                  success: true,
-                  data: {
-                    message: "user added successfully",
-                    authToken: token,
-                    name: registereduser.name,
-                    email: registereduser.email,
-                    _id: registereduser._id,
-                  },
-                });
-              }
-            });
-          } 
+        if (phoneExists) {
+          res.status(400).send({
+            success: false,
+            data: { error: "User with this phone number already exists" },
+          });
+        } else {
+          const salt = await bcrypt.genSalt(10);
+          const hash_Password = await bcrypt.hash(req.body.password, salt);
+          userData.password = hash_Password;
+          // add user
+          let user = new User(userData);
+          user.save((error, registereduser) => {
+            if (error) {
+              res.status(400).send({
+                success: false,
+                data: { error: error.message },
+              });
+            } else {
+              const token = jwt.sign(
+                { _id: registereduser._id },
+                process.env.TOKEN_SECRET
+              );
+              res.status(200).send({
+                success: true,
+                data: {
+                  message: "user added successfully",
+                  authToken: token,
+                  name: registereduser.name,
+                  email: registereduser.email,
+                  _id: registereduser._id,
+                },
+              });
+            }
+          });
+        }
       }
     } catch (error) {
       return res.status(404).send({
@@ -148,15 +147,59 @@ const userController = {
       });
     }
   },
+
+   // .................. get user .............................
+   async getUser(req, res) {
+    try {
+        const { id } = req.params;
+
+        // Ensure the index is created on the email field
+        await User.createIndexes([{ key: { email: 1 }, unique: true }]);
+
+        // Construct the query based on whether an ID is provided
+        const query = id ? { _id: id, ...req.body } : { ...req.body };
+
+        // Find the user(s) matching the query
+        const result = await User.find(query);
+
+        // Handle the case where no user is found
+        if (result.length == 0) {
+          
+            return res.status(404).send({
+                success: false,
+                data: { message: "User not found" },
+            });
+        }
+
+        // Respond with the found user(s)
+        return res.status(200).send({
+            success: true,
+            data: {
+                message: "User found",
+                user: result,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+
+        // Respond with a generic error message
+        return res.status(500).send({
+            success: false,
+            data: { error: error.message },
+        });
+    }
+},      
   //...................... set password ..........
   async setPassword(req, res) {
     const { id } = req.params;
     const { password } = req.body;
-  
-    console.log("id..", id,"..password..", password);
+
+    console.log("id..", id, "..password..", password);
     try {
-      const { error } = passwordSchema.validate(req.body, { abortEarly: false });
-  
+      const { error } = passwordSchema.validate(req.body, {
+        abortEarly: false,
+      });
+
       if (error) {
         console.log("Validation error:", error);
         // Return validation errors
@@ -164,8 +207,8 @@ const userController = {
           success: false,
           data: { error: error.details.map((detail) => detail.message) },
         });
-      } 
-  
+      }
+
       const salt = await bcrypt.genSalt(10);
       const hash_Password = await bcrypt.hash(password, salt);
       await User.findOneAndUpdate({ _id: id }, { password: hash_Password })
@@ -181,7 +224,6 @@ const userController = {
             .status(400)
             .send({ success: false, data: { error: err.message } });
         });
-  
     } catch (error) {
       console.log("Unexpected error:", error);
       return res.status(500).send({
@@ -342,32 +384,31 @@ const userController = {
     }
   },
 
-   // ......................update user .............................
-   async updateUser(req, res, next) {
+  // ......................update user .............................
+  async updateUser(req, res, next) {
     try {
       const id = req.params.id;
 
-      let userExists = await User.findOne({ _id: id })
+      let userExists = await User.findOne({ _id: id });
 
       if (!userExists) {
         return res
           .status(400)
           .send({ success: false, data: { error: "User doesn't exist" } });
       } else {
-        
-          await User.findOneAndUpdate({ _id: id }, req.body)
-            .then((result) => {
-              // Changed parameter name from res to result
-              return res.status(200).send({
-                success: true,
-                data: { message: "details updated successfully" },
-              });
-            })
-            .catch((err) => {
-              return res
-                .status(400)
-                .send({ success: false, data: { error: err.message } });
+        await User.findOneAndUpdate({ _id: id }, req.body)
+          .then((result) => {
+            // Changed parameter name from res to result
+            return res.status(200).send({
+              success: true,
+              data: { message: "details updated successfully" },
             });
+          })
+          .catch((err) => {
+            return res
+              .status(400)
+              .send({ success: false, data: { error: err.message } });
+          });
       }
     } catch (error) {
       // Handle any unexpected errors

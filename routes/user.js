@@ -25,6 +25,7 @@ userRouter.get("/matchPassword/:id/:confirmPassword", userController.confirmPass
 
 
 userRouter.get("/getSignature/:id", userSignatureController.getSignature);
+userRouter.get("/getUser/:id?", userController.getUser);
 
 // add signature
 userRouter.put('/upload/:id', upload.single('file'), async (req, res, next) => {
