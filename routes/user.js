@@ -17,7 +17,11 @@ userRouter.post("/createPrivateUser", userController.createUser);
 userRouter.put("/verifyEmail", userOtpController.verifyEmail);
 userRouter.put("/sendOTPToNumber", userOtpController.sendOtpToNumber);
 userRouter.put("/setPassword/:id", userController.setPassword);
+
+userRouter.put("/setPin/:id", userController.setPin);
 userRouter.put("/login", userController.loginUser);
+
+userRouter.get("/loginWithPin/:pin", userController.loginWithPin);
 userRouter.put("/forgetPassword", userController.forgetPassword);
 userRouter.put("/update/:id", userController.updateUser);
 

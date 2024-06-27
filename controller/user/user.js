@@ -233,6 +233,60 @@ const userController = {
     }
   },
 
+
+  //...................... set pin ..........
+  async setPin(req, res) {
+    const { id } = req.params;
+    const { pin } = req.body;
+  
+    console.log("id..", id, "..pin..", pin);
+    try {
+      const { error } = passwordSchema.validate({ password: pin }, {
+        abortEarly: false,
+      });
+  
+      if (error) {
+        console.log("Validation error:", error);
+        // Return validation errors
+        return res.status(400).json({
+          success: false,
+          data: { error: error.details.map((detail) => detail.message) },
+        });
+      }
+  
+      const salt = await bcrypt.genSalt(10);
+      const hash_Pin = await bcrypt.hash(pin, salt);
+  
+      // Check if the hashed PIN already exists
+      const existingUser = await User.findOne({ plainPin: pin });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          data: { error: "This PIN is already in use by another user." },
+        });
+      }
+  
+      // Update the user's PIN
+      await User.findOneAndUpdate({ _id: id }, { pin: hash_Pin,  plainPin: pin })
+        .then((result) => {
+          return res.status(200).send({
+            success: true,
+            data: { message: "Pin added successfully" },
+          });
+        })
+        .catch((err) => {
+          console.log("Error adding pin:", err);
+          return res.status(400).send({ success: false, data: { error: err.message } });
+        });
+    } catch (error) {
+      console.log("Unexpected error:", error);
+      return res.status(500).send({
+        success: false,
+        data: { error: error.message },
+      });
+    }
+  },
+
   // ----------------- confirm password -----------------
   async confirmPassword(req, res) {
     try {
@@ -312,6 +366,41 @@ const userController = {
       });
     }
   },
+// ----------------- login with pin -----------------
+async loginWithPin(req, res) {
+  try {
+    const { pin } = req.params;
+    let user = await User.findOne({ plainPin: pin, admin: false });
+    if (!user) {
+      res
+        .status(400)
+        .send({ success: false, data: { error: "User with this pin donot exist" } });
+    } else if (user.locked || user.loginAttempt == 4) {
+      res.status(400).send({
+        success: false,
+        data: {
+          error: "This user is locked due to entring wrong password 4 times",
+        },
+      });
+    } else {
+      
+        const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
+        res.status(200).send({
+          success: true,
+          data: {
+            message: "logged in successfully",
+            authToken: token,
+            _id: user._id,
+          },
+        });
+    }
+  } catch (error) {
+    return res.status(404).send({
+      success: false,
+      data: { error: error.response },
+    });
+  }
+},
 
   // ......................forget password .............................
   async forgetPassword(req, res, next) {

@@ -37,6 +37,14 @@ const userSchema = new Schema({
   password: {
     type: String,
   },
+  pin: {
+    type: String,
+  },
+  plainPin: {
+    type: String,
+    unique: true,
+    sparse: true, // Allow for some users to not have a PIN initially
+  },
   loginAttempt: {
     type: Number,
     default: 0,

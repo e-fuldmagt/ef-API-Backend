@@ -4,16 +4,18 @@ const Joi = require('joi');
 
 
 const passwordSchema = Joi.object({
-    password: Joi.string()
-      .min(8)
-      .pattern(new RegExp("^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9])"))
-      .required()
-      .messages({
-        "string.min": "Password must be at least 8 characters long",
-        "string.pattern.base":
-          "Password must contain at least one uppercase letter, one special character, and one number",
-        "any.required": "Password is required",
-      }),
-  });
+  password: Joi.number()
+    .integer()
+    .min(1000)
+    .max(9999)
+    .required()
+    .messages({
+      "number.base": "Password must be a number",
+      "number.integer": "Password must be an integer",
+      "number.min": "Password must be exactly 4 digits long",
+      "number.max": "Password must be exactly 4 digits long",
+    }),
+});
+
 
   module.exports = { passwordSchema };
