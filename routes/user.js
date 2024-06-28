@@ -19,6 +19,8 @@ userRouter.put("/sendOTPToNumber", userOtpController.sendOtpToNumber);
 userRouter.put("/setPassword/:id", userController.setPassword);
 
 userRouter.put("/setPin/:id", userController.setPin);
+
+userRouter.put("/resetPin", userController.reSetPin);
 userRouter.put("/login", userController.loginUser);
 
 userRouter.get("/loginWithPin/:pin", userController.loginWithPin);

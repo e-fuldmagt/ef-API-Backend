@@ -287,6 +287,57 @@ const userController = {
     }
   },
 
+  //...................... re-set pin ..........
+  async reSetPin(req, res) {
+    const { email, pin } = req.body;
+  
+    try {
+      const { error } = passwordSchema.validate({ password: pin }, {
+        abortEarly: false,
+      });
+  
+      if (error) {
+        console.log("Validation error:", error);
+        // Return validation errors
+        return res.status(400).json({
+          success: false,
+          data: { error: error.details.map((detail) => detail.message) },
+        });
+      }
+  
+      const salt = await bcrypt.genSalt(10);
+      const hash_Pin = await bcrypt.hash(pin, salt);
+  
+      // Check if the hashed PIN already exists
+      const existingUser = await User.findOne({ plainPin: pin });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          data: { error: "This PIN is already in use by another user." },
+        });
+      }
+  
+      // Update the user's PIN
+      await User.findOneAndUpdate({ email }, { pin: hash_Pin,  plainPin: pin })
+        .then((result) => {
+          return res.status(200).send({
+            success: true,
+            data: { message: "Pin reset successfully" },
+          });
+        })
+        .catch((err) => {
+          console.log("Error adding pin:", err);
+          return res.status(400).send({ success: false, data: { error: err.message } });
+        });
+    } catch (error) {
+      console.log("Unexpected error:", error);
+      return res.status(500).send({
+        success: false,
+        data: { error: error.message },
+      });
+    }
+  },
+
   // ----------------- confirm password -----------------
   async confirmPassword(req, res) {
     try {

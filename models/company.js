@@ -22,6 +22,10 @@ const companySchema = new Schema({
     type: String,
     required: true,
   },
+  companyName: {
+    type: String,
+    required: true,
+  },
   address: {
     address: { type: String, required: true },
     addressLine: { type: String, required: true },
