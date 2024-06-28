@@ -103,15 +103,29 @@ const otpController = {
           lowerCaseAlphabets: false,
         });
 
+        const otp_expiry_time = Date.now() + 5 * 60 * 1000; // 5 minutes after OTP is sent
+
         // Find the user by email
         let user = await User.findOne({ email: email });
+        let otpExist = await Otp.findOne({ email: email });
+        const salt = await bcrypt.genSalt(10);
+        let hashedOtp = await bcrypt.hash(new_otp, salt);
 
-        if (!user) {
-          return res.status(400).json({
-            success: false,
-            data: { error: "User not registered" },
-          });
-        } else {
+          if (otpExist) {
+            // If OTP exists, update the OTP and expiry time
+            await Otp.findOneAndUpdate(
+              { email },
+              { otp: hashedOtp, otp_expiry_time }
+            );
+          } else {
+            // If OTP doesn't exist, create a new OTP record
+            otpExist = new Otp({
+              email: email,
+              otp: hashedOtp,
+              otp_expiry_time: otp_expiry_time,
+            });
+            await otpExist.save();
+          }
 
           // Send OTP email
           await mailService.sendEmail({
@@ -127,7 +141,6 @@ const otpController = {
             data: { message: "OTP Sent Successfully!" },
           });
         }
-      }
     } catch (error) {
       res.status(400).json({
         success: false,
