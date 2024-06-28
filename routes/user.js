@@ -11,6 +11,7 @@ const User = require('../models/user')
 const userRouter = express.Router();
 
 userRouter.post("/sendOTPToEmail", userOtpController.sendOTPToEmail);
+userRouter.post("/sendOTPForPin", userOtpController.sendOTPForPin);
 userRouter.post("/register", userController.registerUser);
 userRouter.post("/createPrivateUser", userController.createUser);
 

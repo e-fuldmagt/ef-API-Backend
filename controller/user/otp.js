@@ -1,5 +1,5 @@
 const User = require("../../models/user");
-const Joi = require("@hapi/joi");
+const Joi = require("joi");
 const Otp = require("../../models/otp");
 const bcrypt = require("bcryptjs");
 
@@ -61,6 +61,57 @@ const otpController = {
             });
             await otpExist.save();
           }
+
+          // Send OTP email
+          await mailService.sendEmail({
+            sender: process.env.EMAIL,
+            to: email,
+            subject: "Verification OTP",
+            html: `<p>Your OTP is: ${new_otp}</p>`,
+            attachments: [],
+          });
+
+          res.status(200).json({
+            success: true,
+            data: { message: "OTP Sent Successfully!" },
+          });
+        }
+      }
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        data: { error: error.message },
+      });
+    }
+  },
+
+   // ......................send otp .............................
+   async sendOTPForPin(req, res, next) {
+    try {
+      const { email } = req.body;
+      // Validate email using Joi schema
+      const { error } = emailSchema.validate(email);
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          data: { error: error.details[0].message },
+        });
+      } else {
+        const new_otp = otpGenerator.generate(4, {
+          upperCaseAlphabets: false,
+          specialChars: false,
+          lowerCaseAlphabets: false,
+        });
+
+        // Find the user by email
+        let user = await User.findOne({ email: email });
+
+        if (!user) {
+          return res.status(400).json({
+            success: false,
+            data: { error: "User not registered" },
+          });
+        } else {
 
           // Send OTP email
           await mailService.sendEmail({
