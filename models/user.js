@@ -13,6 +13,8 @@ const userSchema = new Schema({
     postalCode: { type: String, required: true },
     city: { type: String, required: true },
     country: { type: String, required: true },
+    setPrimary: {
+    type: Boolean, default: false}
   },
   image: {
     type: String,

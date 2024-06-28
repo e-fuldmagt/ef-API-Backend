@@ -32,6 +32,10 @@ const companySchema = new Schema({
     postalCode: { type: String, required: true },
     city: { type: String, required: true },
     country: { type: String, required: true },
+    setPrimary: {
+      type: Boolean,
+      default: false,
+    },
   },
   image: {
     type: String,
@@ -46,7 +50,7 @@ const companySchema = new Schema({
       required: true,
     },
   },
-  signature:{
+  signature: {
     type: String,
   },
   email: {
