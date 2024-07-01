@@ -12,6 +12,9 @@ const companyRouter = express.Router();
 
 // routes
 companyRouter.post("/register", companyController.addCompany);
+
+companyRouter.get("/getCompany/:id?", companyController.getCompany);
+
 companyRouter.put("/update/:id", companyController.updateCompany);
 companyRouter.get("/getSignature/:id", companySignatureController.getSignature);
 

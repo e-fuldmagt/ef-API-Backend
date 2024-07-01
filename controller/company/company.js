@@ -66,6 +66,48 @@ const companyController = {
     }
   },
 
+  // .................. get company .............................
+  async getCompany(req, res) {
+    try {
+        const { id } = req.params;
+
+        // Ensure the index is created on the email field
+        await Company.createIndexes([{ key: { email: 1 }, unique: true }]);
+
+        // Construct the query based on whether an ID is provided
+        const query = id ? { _id: id, ...req.body } : { ...req.body };
+
+        // Find the user(s) matching the query
+        const result = await Company.find(query);
+
+        // Handle the case where no user is found
+        if (result.length == 0) {
+          
+            return res.status(404).send({
+                success: false,
+                data: { message: "Company not found" },
+            });
+        }
+
+        // Respond with the found user(s)
+        return res.status(200).send({
+            success: true,
+            data: {
+                message: "Company found",
+                user: result,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+
+        // Respond with a generic error message
+        return res.status(500).send({
+            success: false,
+            data: { error: error.message },
+        });
+    }
+},      
+
 };
 
 module.exports = companyController;

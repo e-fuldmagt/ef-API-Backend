@@ -1,4 +1,5 @@
 const User = require("../../models/user");
+const Company = require("../../models/company");
 const Joi = require("@hapi/joi");
 const Otp = require("../../models/otp");
 const bcrypt = require("bcryptjs");
@@ -161,6 +162,10 @@ const userController = {
 
         // Find the user(s) matching the query
         const result = await User.find(query);
+        let company = null;
+        if(id){
+          company = await Company.findOne({user : id });
+        }
 
         // Handle the case where no user is found
         if (result.length == 0) {
@@ -177,6 +182,7 @@ const userController = {
             data: {
                 message: "User found",
                 user: result,
+                company
             },
         });
     } catch (error) {
