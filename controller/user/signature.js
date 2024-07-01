@@ -20,7 +20,8 @@ const signatureController = {
           .then((result) => {
             return res.status(200).send({
               success: true,
-              data: { message: "Details updated successfully", user: result },
+              data: { message: "Details updated successfully", 
+                signature: result.signature },
             });
           })
           .catch((err) => {
