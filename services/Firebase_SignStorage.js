@@ -16,8 +16,17 @@ const uploadFileToFirebase = (Model) => async (req, res, next) => {
 
     // If the user already has a signature, delete the existing file from Firebase Storage
     if (user.signature) {
-      const oldFileRef = ref(storage, user.signature);
-      await deleteObject(oldFileRef);
+      try {
+        const oldFileRef = ref(storage, user.signature);
+        await deleteObject(oldFileRef);
+      } catch (error) {
+        if (error.code === 'storage/object-not-found') {
+          console.warn(`Firebase Storage: Object '${user.signature}' does not exist. Skipping deletion.`);
+        } else {
+          console.error(`Error deleting old file from Firebase Storage: ${error.message}`);
+          return res.status(500).send({ success: false, message: 'Failed to delete existing file' });
+        }
+      }
     }
 
     if (!req.file) {
@@ -33,6 +42,7 @@ const uploadFileToFirebase = (Model) => async (req, res, next) => {
     req.fileUrl = publicUrl;
     next();
   } catch (error) {
+    console.log(error)
     res.status(500).send({ success: false, message: 'Failed to handle file upload' });
   }
 };
