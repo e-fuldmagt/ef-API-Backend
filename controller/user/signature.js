@@ -43,11 +43,15 @@ const signatureController = {
           return res
             .status(400)
             .send({ success: false, data: { error: "User doesn't exist" } });
-        } else {
+        } else if(userExists.signature) {
               return res.status(200).send({
                 success: true,
                 data: { message: "Signatures Found", signature: userExists.signature },
               });
+        }else{
+          return res
+            .status(400)
+            .send({ success: false, data: { error: "Signature not added yet" } });
         }
       } catch (error) {
         res.status(500).send({ success: false, data: { error: "Server Error" } });

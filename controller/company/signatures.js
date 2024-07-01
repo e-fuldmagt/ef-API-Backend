@@ -48,11 +48,16 @@ const signatureController = {
         return res
           .status(400)
           .send({ success: false, data: { error: "Company doesn't exist" } });
-      } else {
+      } else if(companyExists.signature) {
             return res.status(200).send({
               success: true,
               data: { message: "Signatures Found", signature: companyExists.signature },
             });
+      }
+      else{
+        return res
+          .status(400)
+          .send({ success: false, data: { error: "Signature not added yet" } });
       }
     } catch (error) {
       res.status(500).send({ success: false, data: { error: "Server Error" } });
