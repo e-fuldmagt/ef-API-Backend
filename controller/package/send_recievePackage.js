@@ -21,7 +21,7 @@ const packageController = {
             success: true,
             data: {
               message: "Package added successfully",
-              package_id:Package._id
+              package_id: Package._id,
             },
           });
         }
@@ -34,8 +34,8 @@ const packageController = {
     }
   },
 
-   // ......................update package .............................
-   async updatePackage(req, res, next) {
+  // ......................update package .............................
+  async updatePackage(req, res, next) {
     try {
       const id = req.params.id;
 
@@ -69,113 +69,137 @@ const packageController = {
     }
   },
 
-
   // .................. get package .............................
   async getPackage(req, res) {
     try {
-        const { id } = req.params;
+      const { id } = req.params;
 
-        // Construct the query based on whether an ID is provided
-        const query = id ? { _id: id, ...req.body } : { ...req.body };
+      // Construct the query based on whether an ID is provided
+      const query = id ? { _id: id, ...req.body } : { ...req.body };
 
-        // Find the user(s) matching the query
-        const result = await Package.find(query);
+      // Find the user(s) matching the query
+      const result = await Package.find(query);
 
-        // Handle the case where no user is found
-        if (result.length == 0) {
-          
-            return res.status(404).send({
-                success: false,
-                data: { message: "Package not found" },
-            });
-        }
-
-        // Respond with the found user(s)
-        return res.status(200).send({
-            success: true,
-            data: {
-                message: "Package found",
-                packages: result,
-            },
+      // Handle the case where no user is found
+      if (result.length == 0) {
+        return res.status(404).send({
+          success: false,
+          data: { message: "Package not found" },
         });
+      }
+
+      // Respond with the found user(s)
+      return res.status(200).send({
+        success: true,
+        data: {
+          message: "Package found",
+          packages: result,
+        },
+      });
     } catch (error) {
-        console.error(error);
+      console.error(error);
 
-        // Respond with a generic error message
-        return res.status(500).send({
-            success: false,
-            data: { error: error.message },
-        });
+      // Respond with a generic error message
+      return res.status(500).send({
+        success: false,
+        data: { error: error.message },
+      });
     }
-},      
+  },
 
-// get user package
+  // get user package
 
-// get user package
+  // get user package
 
-// get user package
+  // get user package
 
-async getUserPackage(req, res) {
+  async getUserPackage(req, res) {
     try {
-        const { id } = req.params;
+      const { id } = req.params;
 
-        // Construct the query based on whether an ID is provided
-        const query = {
-            $or: [
-                { user: id },
-                { reciever: id }
-            ]
-        };
+      // Construct the query based on whether an ID is provided
+      const query = {
+        $or: [{ user: id }, { reciever: id }],
+      };
 
-        // Find the user(s) matching the query
-        let result = await Package.find(query);
+      // Find the user(s) matching the query
+      let result = await Package.find(query);
 
-        // Handle the case where no user is found
-        if (result.length === 0) {
-            return res.status(404).send({
-                success: false,
-                data: { message: "Package not found" },
-            });
-        }
-
-        // Iterate over the result array and update the reciever field
-        for (let val of result) {
-            let reciever = val.reciever;
-
-            if (reciever) {
-                if (val.recieverAccount === 'user') {
-                    reciever = await User.findById(reciever);
-                } else if (val.recieverAccount === 'company') {
-                    reciever = await Company.findById(reciever);
-                }
-
-                // Update the reciever field with the fetched reciever details
-                val.reciever = reciever;
-            }
-        }
-
-        console.log("Updated result:", result);
-
-        // Respond with the updated result
-        return res.status(200).send({
-            success: true,
-            data: {
-                message: "Package found",
-                packages: result,
-            },
+      // Handle the case where no user is found
+      if (result.length === 0) {
+        return res.status(404).send({
+          success: false,
+          data: { message: "Package not found" },
         });
+      }
+
+      let package = [];
+      let date = new Date()
+
+      // Iterate over the result array and update the reciever field
+      for (let val of result) {
+        let recieverId = val.reciever;
+        let name, issueDate, validity, image = null
+
+        issueDate = val.createdAt
+        let id = val._id
+        let reciever_Id = val.reciever
+
+        if(val.revoke){
+          validity = 'revoked'
+        }
+        else if( val.expiry < date){
+          validity= 'expired'
+        }else{
+          validity= val.expiry
+        }
+
+
+        if (recieverId) {
+          let recieverDetails = null;
+
+          if (val.recieverAccount === "user") {
+            recieverDetails = await User.findById(recieverId);
+          } else if (val.recieverAccount === "company") {
+            recieverDetails = await Company.findById(recieverId);
+          }
+          name = recieverDetails.name
+          image = recieverDetails.image
+        } else {
+          name = val.recieverName
+        }
+
+        package.push({
+          id, reciever_Id,
+          RecieverName: name,
+          RecieverImage: image,
+          issueDate,
+          validity,
+        })
+      }
+
+      // console.log("Updated result:", result);
+
+      // console.log("Updated result:", result);
+
+      // Respond with the updated result
+      return res.status(200).send({
+        success: true,
+        data: {
+          message: "Package found",
+          packages: package,
+        },
+      });
     } catch (error) {
-        console.error(error);
+      console.error(error);
 
-        // Respond with a generic error message
-        return res.status(500).send({
-            success: false,
-            data: { error: error.message },
-        });
+      // Respond with a generic error message
+      return res.status(500).send({
+        success: false,
+        data: { error: error.message },
+      });
     }
-}
-
-
+  },
 };
 
 module.exports = packageController;
