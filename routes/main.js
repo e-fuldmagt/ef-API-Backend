@@ -2,6 +2,9 @@ const express = require("express");
 const userRouter = require("./user");
 const companyRouter = require("./company");
 const fuldmagtRouter = require("./fuldmagt");
+
+const packageRouter = require("./package/package");
+const signPackageRouter = require("./package/signPackage");
 const tokenRouter = require("./token")
 const authGuard = require("../middleware/authGuard.middleware");
 
@@ -14,6 +17,9 @@ router.get("/", (req, res) => {
 router.use("/user", userRouter);
 router.use("/company", companyRouter);
 router.use("/fuldmagt", fuldmagtRouter);
+router.use("/package", packageRouter);
+
+router.use("/signPackage", signPackageRouter);
 router.use("/token", tokenRouter);
 
 module.exports = router;
