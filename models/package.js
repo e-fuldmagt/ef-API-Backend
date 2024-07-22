@@ -27,6 +27,9 @@ const packageSchema = new Schema({
   revoke:{
     type: Boolean
   },
+  revokeDate:{
+    type: Date
+  },
   recieverName: {
     firstName: { type: String },
     lastName: { type: String },

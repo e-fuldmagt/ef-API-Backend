@@ -144,6 +144,8 @@ const packageController = {
         issueDate = val.createdAt
         let id = val._id
         let reciever_Id = val.reciever
+        let revokedDate = val.revoke?val.revokeDate:null
+        let expiry = val.expiry
 
         if(val.revoke){
           validity = 'revoked'
@@ -175,6 +177,8 @@ const packageController = {
           RecieverImage: image,
           issueDate,
           validity,
+          revokedDate,
+          expiry
         })
       }
 
