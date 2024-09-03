@@ -6,6 +6,7 @@ const initSocket = require("../routes/socket");
 const http = require("http");
 const mongoose = require("mongoose");
 const path = require("path");
+const { sendMessage } = require("../services/SMSService");
 
 //Comment update
 class App {
@@ -24,6 +25,8 @@ class App {
     this.initMiddleware();
     this.connectToMongoDB();
     this.initRoutes();
+    //Testing//
+    sendMessage("+923185556339", "hello")
   }
   initMiddleware() {
     this.app.use(cors());
