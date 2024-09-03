@@ -10,6 +10,11 @@ const {upload, uploadFileToFirebase} = require("../services/Firebase_SignStorage
 const User = require('../models/user')
 const userRouter = express.Router();
 
+//Sign Up//
+userRouter.post("/sendOTP", userOtpController.sendOTPToCredentials);
+// userRouter.post("/signup/verifyOTP", userOtpController.verifyOTP);
+userRouter.post("/register", userController.registerUser);
+
 userRouter.post("/sendOTPToEmail", userOtpController.sendOTPToEmail);
 userRouter.post("/sendOTPForPin", userOtpController.sendOTPForPin);
 userRouter.post("/register", userController.registerUser);

@@ -2,11 +2,13 @@ const jwt = require("jsonwebtoken");
 
 //function to verify authentication
 function authGuard (req, res, next) {
-  const token = req.header("auth-token");
+  const token = req.header("Authorization");
+
   if (!token) {
     res.status(401).send("Access Denied");
   } else {
     try {
+      const jwtToken = token.split(' ')[1];
       const verified = jwt.verify(token, process.env.TOKEN_SECRET);
       res.user = verified;
       next();

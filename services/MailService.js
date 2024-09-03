@@ -1,38 +1,21 @@
-const sgMail = require("@sendgrid/mail");
-const dotenv = require("dotenv").config();
+const nodemailer = require('nodemailer');
 
-
-const sendSGMail = async ({
-  to,
-  sender,
-  subject,
-  html,
-  attachments,
-  text,
-}) => {
-  try {
-    sgMail.setApiKey(process.env.MAIL_API_KEY);
-
-    const msg = {
-      to: to, // Change to your recipient
-      from: sender, // Change to your verified sender
-      subject: subject,
-      html: html,
-      // text: text,
-      attachments,
+async function sendEmail(email, subject, body) {
+    var mail = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_ID, // Your email id
+            pass: process.env.EMAIL_PASSWORD // Your password
+        }
+    });
+    var mailOptions = {
+        from: "Power of Attorney",
+        to: email,
+        subject: subject,
+        html: body
     };
+ 
+    return mail.sendMail(mailOptions)
+}
 
-    
-    return sgMail.send(msg);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-exports.sendEmail = async (args) => {
-  if (!process.env.NODE_ENV === "development") {
-    return Promise.resolve();
-  } else {
-    return sendSGMail(args);
-  }
-};
+module.exports = {sendEmail};

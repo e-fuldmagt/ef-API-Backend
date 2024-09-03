@@ -6,7 +6,6 @@ const fuldmagtRouter = require("./fuldmagt");
 const packageRouter = require("./package/package");
 const signPackageRouter = require("./package/signPackage");
 const tokenRouter = require("./token")
-const authGuard = require("../middleware/authGuard.middleware");
 
 const router = express.Router();
 

@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 
 const otpGenerator = require("otp-generator");
 const mailService = require("../../services/MailService");
+const userServices = require("../../services/user.services");
 
 const accountSid = "ACfcb9da3700c2632b98d2c9dbd6ebd3d3";
 const authToken = "5e5c1a2d02929d0b6d09c31535fbd03b";
@@ -14,7 +15,36 @@ const client = require("twilio")(accountSid, authToken);
 const emailSchema = Joi.string().email().required();
 
 const otpController = {
-  // ......................send otp .............................
+  // ......................send otp ............................
+  async sendOTPToCredentials(req, res, next){
+    try{
+      const {email, countryCode, phoneNumber} = req.body;
+      let resBody = null;
+      if(email){
+        resBody = await userServices.sendOTPToEmail(email);
+      }
+      if(countryCode && phoneNumber){
+
+      }
+      if(!resBody){
+        return res.status(400).json({
+          success: false,
+          message: "request body is not valid"
+        })
+      }
+      res.status(200).json({
+        success: true,
+        data: {...resBody}
+      })
+    }
+    catch(e){
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        data: { e: e.message },
+      });
+    }
+  },
   async sendOTPToEmail(req, res, next) {
     try {
       const { email } = req.body;
