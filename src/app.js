@@ -25,8 +25,6 @@ class App {
     this.initMiddleware();
     this.connectToMongoDB();
     this.initRoutes();
-    //Testing//
-    sendMessage("+923185556339", "hello")
   }
   initMiddleware() {
     this.app.use(cors());

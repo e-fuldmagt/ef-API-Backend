@@ -20,7 +20,7 @@ const userSchema = new Schema({
     type: String,
   },
   phone: {
-    code: {
+    countryCode: {
       type: String,
     },
     number: {
@@ -67,4 +67,12 @@ const userSchema = new Schema({
     default: Date.now,
   },
 });
-module.exports = mongoose.model("user", userSchema, "users");
+// Schema-level validation
+userSchema.pre('validate', function (next) {
+  if (!this.email && !this.phone) {
+    this.invalidate('email', 'At least one field must be provided out of email and password');
+  }
+  next();
+});
+const User =  mongoose.model("user", userSchema, "users");
+module.exports = User;

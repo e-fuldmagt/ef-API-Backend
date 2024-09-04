@@ -24,8 +24,58 @@ const otpController = {
         resBody = await userServices.sendOTPToEmail(email);
       }
       if(countryCode && phoneNumber){
-
+        
       }
+      if(!resBody){
+        return res.status(400).json({
+          success: false,
+          message: "request body is not valid"
+        })
+      }
+      res.status(200).json({
+        success: true,
+        data: {...resBody}
+      })
+    }
+    catch(e){
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        data: { e: e.message },
+      });
+    }
+  },
+  async verifySignupOtp(req, res, next){
+    try{
+      const {otp, encryptedOTPToken} = req.body;
+      let resBody = null;
+      resBody = await userServices.verifySignUpOTP(encryptedOTPToken, otp);
+
+      if(!resBody){
+        return res.status(400).json({
+          success: false,
+          message: "request body is not valid"
+        })
+      }
+      res.status(200).json({
+        success: true,
+        data: {...resBody}
+      })
+    }
+    catch(e){
+      console.log(e);
+      res.status(500).json({
+        success: false,
+        data: { e: e.message },
+      });
+    }
+  },
+  async verifyForgotPasswordOtp(req, res, next){
+    try{
+      const {otp, encryptedOTPToken} = req.body;
+      let resBody = null;
+      resBody = await userServices.verifyForgotPasswordOtp(encryptedOTPToken, otp);
+
       if(!resBody){
         return res.status(400).json({
           success: false,

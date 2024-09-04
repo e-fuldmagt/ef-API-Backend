@@ -12,8 +12,12 @@ const userRouter = express.Router();
 
 //Sign Up//
 userRouter.post("/sendOTP", userOtpController.sendOTPToCredentials);
-// userRouter.post("/signup/verifyOTP", userOtpController.verifyOTP);
-userRouter.post("/register", userController.registerUser);
+userRouter.post("/signup/verifyOTP", userOtpController.verifySignupOtp);
+userRouter.post("/signup/registerUser", userController.registerUser);
+userRouter.post("/create-password", userController.createPassword);
+userRouter.post("/login", userController.login);
+userRouter.post("/forgot-password/verifyOTP", userOtpController.verifyForgotPasswordOtp);
+
 
 userRouter.post("/sendOTPToEmail", userOtpController.sendOTPToEmail);
 userRouter.post("/sendOTPForPin", userOtpController.sendOTPForPin);
@@ -27,7 +31,6 @@ userRouter.put("/setPassword/:id", userController.setPassword);
 userRouter.put("/setPin/:id", userController.setPin);
 
 userRouter.put("/resetPin", userController.reSetPin);
-userRouter.put("/login", userController.loginUser);
 
 userRouter.get("/loginWithPin/:pin", userController.loginWithPin);
 userRouter.put("/forgetPassword", userController.forgetPassword);

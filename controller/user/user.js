@@ -10,6 +10,7 @@ const mailService = require("../../services/MailService");
 
 const { userSchema } = require("../../validation/userValidation");
 const { passwordSchema } = require("../../validation/passwordSchema");
+const userServices = require("../../services/user.services");
 
 // Define Joi schema for email validation
 const emailSchema = Joi.string().email().required();
@@ -18,80 +19,86 @@ const userController = {
   // ----------------- register User -----------------
   async registerUser(req, res) {
     try {
-      const { email, phone } = req.body;
-      let userData = req.body;
-
-      const { error } = userSchema.validate(userData);
-      if (error) {
-        // Return validation errors
-        return res.status(400).json({
-          success: false,
-          data: { error: error.details.map((detail) => detail.message) },
-        });
-      } else {
-        // check if number and email is verfied
-        const verifiedUser = await Otp.findOne({
-          email,
-          // phone,
-          emailVerification: true,
-          // numberVerification: true,
-        });
-
-        if (verifiedUser) {
-          // check is user already exists
-          const phoneExists = await User.findOne({
-            $or: [
-              { phone }, // Check if phone number exists
-              { email }, // Check if email exists
-            ],
-          });
-          if (phoneExists) {
-            res.status(400).send({
-              success: false,
-              data: { error: "This user already exists" },
-            });
-          } else {
-            // add user
-            let user = new User(userData);
-            user.save((error, registereduser) => {
-              if (error) {
-                res.status(400).send({
-                  success: false,
-                  data: { error: error.message },
-                });
-              } else {
-                const token = jwt.sign(
-                  { _id: registereduser._id },
-                  process.env.TOKEN_SECRET
-                );
-                res.status(200).send({
-                  success: true,
-                  data: {
-                    message: "user added successfully",
-                    authToken: token,
-                    name: registereduser.name,
-                    email: registereduser.email,
-                    _id: registereduser._id,
-                  },
-                });
-              }
-            });
-          }
-        } else {
-          return res.status(404).send({
-            success: false,
-            data: { error: "User not verified" },
-          });
-        }
+      const {credentialsToken, name, address, dateOfBirth} = req.body
+      userObj = {
+        name, address, dateOfBirth
       }
+      
+      let resBody = await userServices.registerUser(credentialsToken, userObj);
+
+
+
+      if(!resBody){
+        return res.status(400).send({
+          success: false,
+          message: "Bad Request",
+        });
+      }
+      res.status(200).send({
+        success:true,
+        data:{
+          ...resBody
+        }
+      })
     } catch (error) {
-      return res.status(404).send({
+      return res.status(500).send({
         success: false,
-        data: { error: error.response },
+        data: { error: error.message },
+      });
+    }
+  },
+  async createPassword(req, res){
+    try{
+      const {createPasswordToken, pin} = req.body;
+      
+      resBody = await userServices.createPassword(createPasswordToken, pin);
+
+      if(!resBody){
+        return res.status(400).send({
+          success: false,
+          message: "Bad Request",
+        });
+      }
+      res.status(200).send({
+        success:true,
+        data:{
+          ...resBody
+        }
+      })
+    }catch(error){
+      return res.status(500).send({
+        success: false,
+        data: { error: error.message },
       });
     }
   },
 
+  async login(req, res, next){
+    try{
+      
+      const {credentials, pin} = req.body;
+      
+      resBody = await userServices.login(credentials, pin);
+
+      if(!resBody){
+        return res.status(400).send({
+          success: false,
+          message: "Bad Request",
+        });
+      }
+      res.status(200).send({
+        success:true,
+        data:{
+          ...resBody
+        }
+      })
+    }catch(error){
+      return res.status(500).send({
+        success: false,
+        data: { error: error.message },
+      });
+    }
+  },
   // ----------------- create User without verification (for company) -----------------
   async createUser(req, res) {
     try {
@@ -372,8 +379,7 @@ const userController = {
   // ----------------- login -----------------
   async loginUser(req, res) {
     try {
-      const { email, password } = req.body;
-      let user = await User.findOne({ email, admin: false });
+      const { credentials, pin } = req.body;
       if (!user) {
         res
           .status(400)
