@@ -22,15 +22,19 @@ const userSchema = new Schema({
   phone: {
     countryCode: {
       type: String,
+      required: false, // this ensures countryCode can be null
     },
     number: {
       type: Number,
-      unique: true, 
+      default: null, trim: true, unique: true, sparse: true
     }
   },
   email: {
     type: String,
     unique: true,
+    default: null, 
+    trim: true, 
+    sparse: true
   },
   admin: {
     type: Boolean,
