@@ -5,7 +5,7 @@ const signatureController = {
   // ......................add Signature .............................
   async addSignature(req, res, next) {
     try {
-      const id = req.params.id;
+      const id = req.company;
       const signature = req.fileUrl;
 
       const companyExists = await Company.findOne({ _id: id });

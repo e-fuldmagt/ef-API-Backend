@@ -4,7 +4,6 @@ const { sendEmail } = require("./MailService");
 var CryptoJS = require("crypto-js");
 const User = require("../models/user");
 const bcryptjs = require("bcryptjs");
-const company = require("../models/company");
 const Company = require("../models/company");
 
 const userServices = {
@@ -78,11 +77,11 @@ const userServices = {
         await user.save();
 
         //Check if user has a company//
-        let company  = Company.findOne({user: user._id})
+        let company  = await Company.findOne({user: user._id})
 
         let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN);
 
-        return {authToken, user:{...user.toObject(), pin: undefined}};
+        return {authToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null};
     },
     async login(credentials, pin){
         let user = null;
@@ -104,11 +103,11 @@ const userServices = {
         }
 
         //Check if user has a company//
-        let company  = Company.findOne({user: user._id})
+        let company  = await Company.findOne({user: user._id})
 
         let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN);
 
-        return {authToken, user:{...user.toObject(), pin: undefined}};
+        return {authToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null};
     },
     async verifyForgotPasswordOtp(encryptedOTPToken, otp){
         //Decrypt OTP Token

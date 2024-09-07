@@ -16,13 +16,13 @@ companyRouter.post("/register", authGuard, companyController.addCompany);
 
 companyRouter.get("/getCompany/:id?", companyController.getCompany);
 
-companyRouter.put("/update/:id", companyController.updateCompany);
+companyRouter.put("/update/", authGuard, companyController.updateCompany);
 companyRouter.get("/getSignature/:id", companySignatureController.getSignature);
 
 // add signature route
-companyRouter.put('/upload/:id', upload.single('file'), async (req, res, next) => {
+companyRouter.put('/upload/', upload.single('file'), authGuard, async (req, res, next) => {
     try {
-        const id = req.params.id; // Extract id from request parameters
+        const id = req.company; // Extract id from request parameters
         await uploadFileToFirebase(Company, id)(req, res, next); // Pass id to uploadFileToFirebase function
     } catch (error) {
         console.error('Error handling file upload to Firebase:', error);

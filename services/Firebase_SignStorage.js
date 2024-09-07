@@ -5,11 +5,9 @@ const { storage } = require('../configurations/FirebaseServiceAccountKey');
 const memoryStorage = multer.memoryStorage();
 const upload = multer({ storage: memoryStorage });
 
-const uploadFileToFirebase = (Model) => async (req, res, next) => {
-  const userId = req.user
-
+const uploadFileToFirebase = (Model, id) => async (req, res, next) => {
   try {
-    const user = await Model.findById(userId);
+    const user = await Model.findById(id);
     if (!user) {
       return res.status(400).send({ success: false, message: 'User not found' });
     }

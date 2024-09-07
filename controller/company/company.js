@@ -29,7 +29,7 @@ const companyController = {
         } else {
 
           //Generate new authToken
-          let authToken = jwt.sign({userId: user._id, companyId: registeredCompany?registeredCompany._id:null}, process.env.AUTHENTICATION_TOKEN);
+          let authToken = jwt.sign({userId: user._id, companyId: registeredCompany?registeredCompany._id:null}, process.env.AUTHORIZATION_TOKEN);
           return res.status(200).send({
             success: true,
             data: {
@@ -51,7 +51,8 @@ const companyController = {
   // ......................update company .............................
   async updateCompany(req, res, next) {
     try {
-      const id = req.params.id;
+      console.log(req.company)
+      const id = req.company;
 
       let companyExists = await Company.findOne({ _id: id });
 
