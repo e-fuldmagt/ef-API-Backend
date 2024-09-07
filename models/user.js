@@ -26,13 +26,12 @@ const userSchema = new Schema({
     },
     number: {
       type: Number,
-      default: null, trim: true, unique: true, sparse: true
+      trim: true, unique: true, sparse: true
     }
   },
   email: {
     type: String,
     unique: true,
-    default: null, 
     trim: true, 
     sparse: true
   },
