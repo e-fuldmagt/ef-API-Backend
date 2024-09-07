@@ -6,7 +6,7 @@ const memoryStorage = multer.memoryStorage();
 const upload = multer({ storage: memoryStorage });
 
 const uploadFileToFirebase = (Model) => async (req, res, next) => {
-  const userId = req.params.id;
+  const userId = req.user
 
   try {
     const user = await Model.findById(userId);

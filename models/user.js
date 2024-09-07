@@ -25,27 +25,20 @@ const userSchema = new Schema({
     },
     number: {
       type: Number,
-    },
+      unique: true, 
+    }
   },
   email: {
     type: String,
     unique: true,
-    required: true,
   },
   admin: {
     type: Boolean,
     default: false,
   },
-  password: {
-    type: String,
-  },
   pin: {
     type: String,
-  },
-  plainPin: {
-    type: String,
-    unique: true,
-    sparse: true, // Allow for some users to not have a PIN initially
+    required: true
   },
   loginAttempt: {
     type: Number,
@@ -70,7 +63,7 @@ const userSchema = new Schema({
 // Schema-level validation
 userSchema.pre('validate', function (next) {
   if (!this.email && !this.phone) {
-    this.invalidate('email', 'At least one field must be provided out of email and password');
+    this.invalidate('email', 'At least one field must be provided out of email and phone number');
   }
   next();
 });

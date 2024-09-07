@@ -5,7 +5,8 @@ const fuldmagtRouter = require("./fuldmagt");
 
 const packageRouter = require("./package/package");
 const signPackageRouter = require("./package/signPackage");
-const tokenRouter = require("./token")
+const tokenRouter = require("./token");
+const adminRouter = require("./admin");
 
 const router = express.Router();
 
@@ -15,6 +16,7 @@ router.get("/", (req, res) => {
 
 router.use("/user", userRouter);
 router.use("/company", companyRouter);
+router.use("/admin", adminRouter)
 router.use("/fuldmagt", fuldmagtRouter);
 router.use("/package", packageRouter);
 

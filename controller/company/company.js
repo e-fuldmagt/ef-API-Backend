@@ -1,11 +1,23 @@
+const jwt = require("jsonwebtoken");
 const Company = require("../../models/company");
+const User = require("../../models/user");
 
 const companyController = {
   // ----------------- register Company -----------------
   async addCompany(req, res) {
     try {
       let companyData = req.body;
+      companyData.user = req.user;
 
+      let user = await User.findById(req.user);
+
+      if(!user){
+        return res.status(400).send({
+          "message": "User not found"
+        })
+      }
+
+      
       // Add company
       let company = new Company(companyData);
       company.save((err, registeredCompany) => {
@@ -15,10 +27,15 @@ const companyController = {
             data: { error: err.message },
           });
         } else {
+
+          //Generate new authToken
+          let authToken = jwt.sign({userId: user._id, companyId: registeredCompany?registeredCompany._id:null}, process.env.AUTHENTICATION_TOKEN);
           return res.status(200).send({
             success: true,
             data: {
               message: "Company added successfully",
+              authToken: authToken,
+              company: registeredCompany
             },
           });
         }

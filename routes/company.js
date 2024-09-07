@@ -6,12 +6,13 @@ const companyController = require("../controller/company/company");
 const companySignatureController = require("../controller/company/signatures");
 
 // middleware
-const {upload, uploadFileToFirebase} = require("../services/Firebase_SignStorage")
+const {upload, uploadFileToFirebase} = require("../services/Firebase_SignStorage");
+const authGuard = require("../middleware/authGuard.middleware");
 
 const companyRouter = express.Router();
 
 // routes
-companyRouter.post("/register", companyController.addCompany);
+companyRouter.post("/register", authGuard, companyController.addCompany);
 
 companyRouter.get("/getCompany/:id?", companyController.getCompany);
 

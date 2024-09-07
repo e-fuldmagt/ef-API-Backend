@@ -5,6 +5,7 @@ const companySchema = new Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     required: true,
+    unique: true,
     ref: "user",
   },
   cvr: {
@@ -17,10 +18,6 @@ const companySchema = new Schema({
       },
       message: "CVR must be exactly 8 digits",
     },
-  },
-  name: {
-    type: String,
-    required: true,
   },
   companyName: {
     type: String,
@@ -68,4 +65,5 @@ const companySchema = new Schema({
   },
 });
 
-module.exports = mongoose.model("company", companySchema, "companies");
+const Company =  mongoose.model("company", companySchema, "companies");
+module.exports =Company;

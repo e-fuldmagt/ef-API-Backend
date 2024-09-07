@@ -9,8 +9,8 @@ function authGuard (req, res, next) {
   } else {
     try {
       const jwtToken = token.split(' ')[1];
-      const verified = jwt.verify(token, process.env.TOKEN_SECRET);
-      res.user = verified;
+      const verified = jwt.verify(jwtToken, process.env.AUTHORIZATION_TOKEN);
+      req.user = verified.userId;
       next();
     } catch (err) {
       res.status(400).send("Invalid Token");

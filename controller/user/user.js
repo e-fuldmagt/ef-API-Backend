@@ -112,46 +112,33 @@ const userController = {
           data: { error: error.details.map((detail) => detail.message) },
         });
       } else {
-        if (phoneExists) {
-          res.status(400).send({
-            success: false,
-            data: { error: "User with this phone number already exists" },
-          });
-        } else {
           const salt = await bcrypt.genSalt(10);
-          const hash_Password = await bcrypt.hash(req.body.password, salt);
-          userData.password = hash_Password;
+          const hashPin = await bcrypt.hash(req.body.pin, salt);
+          userData.pin = hashPin;
           // add user
-          let user = new User(userData);
-          user.save((error, registereduser) => {
-            if (error) {
-              res.status(400).send({
-                success: false,
-                data: { error: error.message },
-              });
-            } else {
-              const token = jwt.sign(
-                { _id: registereduser._id },
-                process.env.TOKEN_SECRET
-              );
-              res.status(200).send({
-                success: true,
-                data: {
-                  message: "user added successfully",
-                  authToken: token,
-                  name: registereduser.name,
-                  email: registereduser.email,
-                  _id: registereduser._id,
-                },
-              });
+          let userCreated = null;
+          try{
+            userCreated = await userServices.addUser(userData);
+          }
+          catch(e){
+            return res.status(400).send({
+              success: false,
+              data: { error: e.message },
+            });
+          }
+          
+          return res.status(200).send({
+            success:true,
+            data: {
+              user: {...userCreated}
             }
-          });
-        }
+          })
       }
     } catch (error) {
-      return res.status(404).send({
+      console.log(error);
+      return res.status(500).send({
         success: false,
-        data: { error: error.response },
+        data: { error: error.message },
       });
     }
   },
@@ -204,11 +191,10 @@ const userController = {
 },      
   //...................... set password ..........
   async setPassword(req, res) {
-    const { id } = req.params;
-    const { password } = req.body;
-
-    console.log("id..", id, "..password..", password);
+    const id = req.user;
+    const { oldPin, newPin } = req.body;
     try {
+      let user = await User.findById(id);
       const { error } = passwordSchema.validate(req.body, {
         abortEarly: false,
       });
@@ -221,22 +207,22 @@ const userController = {
           data: { error: error.details.map((detail) => detail.message) },
         });
       }
+      
+      if(!bcrypt.compareSync(oldPin, user.pin)){
+        return res.status(400).json({
+          success: false,
+          data: { error: "Old Pin doesn't match" },
+        });
+      }
 
       const salt = await bcrypt.genSalt(10);
-      const hash_Password = await bcrypt.hash(password, salt);
-      await User.findOneAndUpdate({ _id: id }, { password: hash_Password })
-        .then((result) => {
-          return res.status(200).send({
-            success: true,
-            data: { message: "Password added successfully" },
-          });
-        })
-        .catch((err) => {
-          console.log("Error updating password:", err);
-          return res
-            .status(400)
-            .send({ success: false, data: { error: err.message } });
-        });
+      const hash_Password = await bcrypt.hash(newPin, salt);
+      user.pin = hash_Password;
+      await user.save();
+      return res.status(200).send({
+        success: true,
+        message: "Password has been changed successfully"
+      })
     } catch (error) {
       console.log("Unexpected error:", error);
       return res.status(500).send({

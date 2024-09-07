@@ -3,12 +3,12 @@
 const Joi = require('joi');
 
 const userSchema = Joi.object({
-    email: Joi.string().email().required().messages({
+    email: Joi.string().email().messages({
       "string.email": "Must be a valid email address",
       "any.required": "Email is required",
     }),
     phone: Joi.object({
-      code: Joi.string().required().messages({
+      countryCode: Joi.string().required().messages({
         "string.empty": "Country code is required",
         "any.required": "Country code is required",
       }),
@@ -19,7 +19,7 @@ const userSchema = Joi.object({
           "string.empty": "Phone number is required",
           "any.required": "Phone number is required",
         }),
-    }).required(),
+    }),
     name: Joi.object({
       firstName: Joi.string().required().messages({
         "string.empty": "First name is required",
@@ -52,6 +52,7 @@ const userSchema = Joi.object({
         "any.required": "Country is required",
       }),
     }).required(),
+    pin: Joi.string().min(4).max(4)
   });
 
   module.exports = { userSchema };

@@ -4,6 +4,8 @@ const { sendEmail } = require("./MailService");
 var CryptoJS = require("crypto-js");
 const User = require("../models/user");
 const bcryptjs = require("bcryptjs");
+const company = require("../models/company");
+const Company = require("../models/company");
 
 const userServices = {
     async sendOTPToEmail(email){
@@ -75,7 +77,10 @@ const userServices = {
 
         await user.save();
 
-        let authToken = jwt.sign({userId: user._id}, process.env.AUTHENTICATION_TOKEN);
+        //Check if user has a company//
+        let company  = Company.findOne({user: user._id})
+
+        let authToken = jwt.sign({userId: user._id, companyId: comapany?company._id:null}, process.env.AUTHENTICATION_TOKEN);
 
         return {authToken, user:{...user.toObject(), pin: undefined}};
     },
@@ -98,7 +103,10 @@ const userServices = {
             throw new Error("Password not matching");
         }
 
-        let authToken = jwt.sign({userId: user._id}, process.env.AUTHENTICATION_TOKEN);
+        //Check if user has a company//
+        let company  = Company.findOne({user: user._id})
+
+        let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHENTICATION_TOKEN);
 
         return {authToken, user:{...user.toObject(), pin: undefined}};
     },
@@ -128,6 +136,16 @@ const userServices = {
         let createPasswordToken = jwt.sign({userId: user._id}, process.env.CREATE_PASSWORD_TOKEN);
 
         return {createPasswordToken, user:{...user.toObject(), pin: undefined}};
+    },
+    async addUser(userObj){
+        const user = {...userObj};
+        
+        //
+        let newUser = new User(user);
+
+        await newUser.save();
+
+        return {user:{...newUser.toObject(), pin: undefined}};
     },
     async sendOTPToNumber(countryCode, phoneNumber){
         
