@@ -38,7 +38,6 @@ const userSchema = new Schema({
   },
   pin: {
     type: String,
-    required: true
   },
   loginAttempt: {
     type: Number,

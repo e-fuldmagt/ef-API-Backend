@@ -80,7 +80,7 @@ const userServices = {
         //Check if user has a company//
         let company  = Company.findOne({user: user._id})
 
-        let authToken = jwt.sign({userId: user._id, companyId: comapany?company._id:null}, process.env.AUTHENTICATION_TOKEN);
+        let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN);
 
         return {authToken, user:{...user.toObject(), pin: undefined}};
     },
@@ -106,7 +106,7 @@ const userServices = {
         //Check if user has a company//
         let company  = Company.findOne({user: user._id})
 
-        let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHENTICATION_TOKEN);
+        let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN);
 
         return {authToken, user:{...user.toObject(), pin: undefined}};
     },
