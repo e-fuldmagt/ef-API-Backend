@@ -47,6 +47,67 @@ const userController = {
       });
     }
   },
+  async deactivateAccount(req, res, next){
+    try{
+      let userId = req.user;
+
+      let user = await User.findById(userId);
+
+      if(!user){
+        return res.status(404).send({
+          success:false,
+          data: {error: "User not found"}
+        })
+      }
+
+      user.deleted = true;
+
+      await user.save();
+
+      return res.status(200).send({
+        success: true,
+        message: "Account deactivated successfully",
+        user: {...user.toObject(), pin:undefined}
+      })
+
+    }
+    catch(e){
+      return res.status(500).send({
+        success: false,
+        data: { error: e.message },
+      });
+    }
+  },
+  async deleteUser(req, res, next){
+    try{
+      let userId = req.params.id;
+
+      let user = await User.findById(userId);
+
+      if(!user){
+        return res.status(400).send({
+          success:false,
+          data: {error: "User not found"}
+        })
+      }
+
+      user.deleted = true;
+
+      await user.save();
+
+      return res.status(200).send({
+        success: true,
+        user: {...user.toObject(), pin:undefined}
+      })
+
+    }
+    catch(e){
+      return res.status(500).send({
+        success: false,
+        data: { error: e.message },
+      });
+    }
+  },
   async createPassword(req, res){
     try{
       const {createPasswordToken, pin} = req.body;
@@ -142,7 +203,27 @@ const userController = {
       });
     }
   },
+  async getUsers(req, res, next){
+    try{
+      let query = req.query;
+      let filteredUsers = await userServices.getUsers(query);
 
+      return res.status(200).send({
+        success: true,
+        data: {
+          users: filteredUsers
+        }
+      })
+    }
+    catch (error) {
+
+      // Respond with a generic error message
+      return res.status(500).send({
+          success: false,
+          data: { error: error.message },
+      });
+  ``}
+  },
    // .................. get user .............................
    async getUser(req, res) {
     try {

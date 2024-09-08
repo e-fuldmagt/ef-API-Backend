@@ -18,8 +18,9 @@ userRouter.post("/signup/registerUser", userController.registerUser);
 userRouter.post("/create-password", userController.createPassword);
 userRouter.post("/login", userController.login);
 userRouter.post("/forgot-password/verifyOTP", userOtpController.verifyForgotPasswordOtp);
+userRouter.get("/users", userController.getUsers);
 
-
+userRouter.delete("/deactivateAccount", authGuard, userController.deactivateAccount);
 userRouter.put("/setPassword/", authGuard, userController.setPassword);
 
 // add signature

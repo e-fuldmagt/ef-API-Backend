@@ -68,6 +68,16 @@ const userServices = {
         
         let user = await User.findById(userId);
 
+        
+        if(!user){
+            throw new Error("Account doesn't exist");
+        }
+
+           
+        if(user.deleted){
+            throw new Error("This account has been deleted");
+        }
+
         let salt = await bcryptjs.genSalt(10);
 
         let encryptedPin = await bcryptjs.hash(pin, salt);
@@ -97,6 +107,10 @@ const userServices = {
             throw new Error("User Not Found");
         }
         
+        if(user.deleted){
+            throw new Error("This account has been deleted");
+        }
+
         //Matching Password//
         if(!(await bcryptjs.compare(pin, user.pin))){
             throw new Error("Password not matching");
@@ -131,6 +145,9 @@ const userServices = {
         if(!user){
             return null;
         }
+        if(user.deleted){
+            return null;
+        }
 
         let createPasswordToken = jwt.sign({userId: user._id}, process.env.CREATE_PASSWORD_TOKEN);
 
@@ -145,6 +162,46 @@ const userServices = {
         await newUser.save();
 
         return {user:{...newUser.toObject(), pin: undefined}};
+    },
+    async getUsers(query){
+        // Destructure query parameters from request
+        const { q, name, email, number } = query;
+
+        // Initialize an empty filter object
+        let filter = {};
+
+        // Check for the "q" parameter - search across email, number, and name
+        if (q) {
+        filter = {
+            $or: [
+                { email: { $regex: q, $options: 'i' } }, // case-insensitive substring match for email
+                { name: { $regex: q, $options: 'i' } },  // case-insensitive substring match for name
+                { number: { $regex: q, $options: 'i' } } // case-insensitive substring match for number
+            ]
+        };
+        }
+
+        // If "name" is provided, search by name
+        if (name) {
+        filter.name = new RegExp(name, 'i'); // case-insensitive search for name
+        }
+
+        // If "email" is provided, search by email
+        if (email) {
+        filter.email = new RegExp(email, 'i'); // case-insensitive search for email
+        }
+
+        // If "number" is provided, search by number
+        if (number) {
+        filter.number = number; // exact match for number
+        }
+
+        console.log(filter);
+        // Fetch users based on the filter
+        const users = await User.find(filter);
+        console.log(users);
+        // Send back the results
+        return users;
     },
     async sendOTPToNumber(countryCode, phoneNumber){
         
