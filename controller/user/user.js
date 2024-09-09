@@ -11,6 +11,8 @@ const mailService = require("../../services/MailService");
 const { userSchema } = require("../../validation/userValidation");
 const { passwordSchema } = require("../../validation/passwordSchema");
 const userServices = require("../../services/user.services");
+const bcryptjs = require("bcryptjs");
+const { mobileLoginSchema, verifyDevicePinSchema, refreshTokenSchema } = require("../../schemas/users");
 
 // Define Joi schema for email validation
 const emailSchema = Joi.string().email().required();
@@ -637,6 +639,225 @@ async loginWithPin(req, res) {
       });
     }
   },
+  async mobileLogin(req, res, next){
+    try{
+      let validate = mobileLoginSchema.validate(req.body);
+
+      if(validate.error){
+        return res.status(400).send({
+          "success": true,
+          "message": validate.error.message
+        })
+      }
+
+      let {credentials, pin, notificationId, deviceId} = req.body;
+      
+      //Use Body Schema Here//
+
+      let user = null;
+
+      if(credentials.email){
+          user = await User.findOne({email: credentials.email});
+      }
+      else if(credentials.phone){
+          user = await User.findOne({phone: credentials.phone})
+      }
+
+      if(!user){
+          return res.status(404).send({
+            "success": false, 
+            "message": "User with given credentials doesn't exist"
+          })
+      }
+      
+      if(user.deleted){
+        return res.status(400).send({
+          "success": false, 
+          "message": "User with given credentials is deleted"
+        })
+      }
+
+      if(user.deviceId && user.deviceId!= deviceId){
+        return res.status(400).send({
+          "success": false,
+          "messsage": "User has already been registered on another device Id,"
+        })
+      }
+
+      //Matching Password//
+      if(!(await bcryptjs.compare(pin, user.pin))){
+        return res.status(400).send({
+          "success": false,
+          "messsage": "Credentials or Pin is not correct"
+        })
+      }
+
+      
+
+      user.deviceId = deviceId;
+
+      user.notificationIds.push(notificationId);
+
+      let refreshToken = jwt.sign({userId: user._id}, process.env.REFRESH_TOKEN, {expiresIn: "30d"});
+
+      user.refreshTokens.push(refreshToken);
+
+      await user.save();
+
+      //Check if user has a company//
+      let company  = await Company.findOne({user: user._id})
+
+      let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "15m"});
+      return res.status(200).send({
+        success: "true",
+        data: {authToken, refreshToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null}
+      }
+      ) ;
+    }
+    catch(e){
+      // Handle any unexpected errors
+      res.status(500).send({
+        success: false,
+        data: { error: e.message },
+      });
+    }
+  },
+  async verifyDevicePin(req, res, next){
+    try{
+      let validate = verifyDevicePinSchema.validate(req.body);
+
+      if(validate.error){
+        return res.status(400).send({
+          "success": true,
+          "message": validate.error.message
+        })
+      }
+
+      let {refreshToken, pin, deviceId} = req.body;
+      
+      //Use Body Schema Here//
+      let refreshTokenPayload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN);
+
+      let userId = refreshTokenPayload.userId;
+
+      let user = await User.findOne({_id: userId, deviceId});
+      
+
+      if(!user){
+          return res.status(404).send({
+            "success": false,
+            "message": "User with given credentials doesn't exist"
+          })
+      }
+
+      if(user.refreshTokens.findIndex((rT)=> rT==refreshToken) == -1){
+        return res.status(400).send({
+          "success": false, 
+          "message": "Session has expired, please login again"
+        })
+      }
+      
+      if(user.deleted){
+        return res.status(400).send({
+          "success": false, 
+          "message": "User with given credentials is deleted"
+        })
+      }
+
+      if(user.deviceId && user.deviceId!= deviceId){
+        return res.status(400).send({
+          "success": false,
+          "messsage": "User has already been registered on another device Id"
+        })
+      }
+
+      //Matching Password//
+      if(!(await bcryptjs.compare(pin, user.pin))){
+        return res.status(400).send({
+          "success": false,
+          "messsage": "Credentials or Pin is not correct"
+        })
+      }
+
+      await user.save();
+
+      //Check if user has a company//
+      let company  = await Company.findOne({user: user._id})
+
+      let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "15m"});
+
+      return res.status(200).send({
+        success: "true",
+        data: {authToken, refreshToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null}
+      }
+      ) ;
+    }
+    catch(e){
+      // Handle any unexpected errors
+      res.status(500).send({
+        success: false,
+        data: { error: e.message },
+      });
+    }
+  },
+  async refreshTokenCall(req, res, next){
+    try{
+      let validate = refreshTokenSchema.validate(req.body);
+
+      if(validate.error){
+        return res.status(400).send({
+          "success": true,
+          "message": validate.error.message
+        })
+      }
+
+      let {refreshToken} = req.body;
+
+      let userId = req.user;
+      let companyId = req.company;
+
+      let user = await User.findOne({_id: userId});
+      
+
+      if(!user){
+          return res.status(404).send({
+            "success": false,
+            "message": "User with given credentials doesn't exist"
+          })
+      }
+      
+      if(user.deleted){
+        return res.status(400).send({
+          "success": false, 
+          "message": "User with given credentials is deleted"
+        })
+      }
+
+      //Remove the Refresh Token from User//
+      user.refreshTokens = user.refreshTokens.filter(rT => rT != refreshToken);
+
+      let newRefreshToken = jwt.sign({userId: user._id}, process.env.REFRESH_TOKEN, {expiresIn: "30d"});
+
+      user.refreshTokens.push(newRefreshToken);
+
+      let authToken = jwt.sign({userId: user._id, companyId: companyId}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "15m"});
+
+      
+      await user.save();
+
+      return res.status(200).send({
+        success: "true",
+        data: {authToken, refreshToken: newRefreshToken}}
+      ) ;
+    }
+    catch(e){
+      // Handle any unexpected errors
+      res.status(500).send({
+        success: false,
+        data: { error: e.message },
+      });
+    }
+  }
 };
 
 module.exports = userController;

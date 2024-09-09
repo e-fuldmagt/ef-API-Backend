@@ -20,6 +20,10 @@ userRouter.post("/login", userController.login);
 userRouter.post("/forgot-password/verifyOTP", userOtpController.verifyForgotPasswordOtp);
 userRouter.get("/users", userController.getUsers);
 
+userRouter.post('/verifyDevicePin', userController.verifyDevicePin);
+userRouter.post('/mobileLogin', userController.mobileLogin);
+
+userRouter.put('/refreshTokenCall', authGuard, userController.refreshTokenCall);
 userRouter.delete("/deactivateAccount", authGuard, userController.deactivateAccount);
 userRouter.put("/setPassword/", authGuard, userController.setPassword);
 

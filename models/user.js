@@ -13,8 +13,7 @@ const userSchema = new Schema({
     postalCode: { type: String, required: true },
     city: { type: String, required: true },
     country: { type: String, required: true },
-    setPrimary: {
-    type: Boolean, default: false}
+    setPrimary: {type: Boolean, default: false}
   },
   image: {
     type: String,
@@ -61,6 +60,20 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  deviceId: {
+    type: String,
+    unique: true
+  },
+  refreshTokens: {
+    type: [String],
+    default: [],
+    required: true
+  },
+  notificationIds: {
+    type: [String],
+    default: [],
+    required: true
+  } 
 });
 // Schema-level validation
 userSchema.pre('validate', function (next) {
