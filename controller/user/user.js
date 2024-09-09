@@ -779,8 +779,6 @@ async loginWithPin(req, res) {
         })
       }
 
-      await user.save();
-
       //Check if user has a company//
       let company  = await Company.findOne({user: user._id})
 
