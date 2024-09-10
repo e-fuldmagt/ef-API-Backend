@@ -6,7 +6,21 @@ const User = require("../models/user");
 const bcryptjs = require("bcryptjs");
 const Company = require("../models/company");
 
+
+
 const userServices = {
+    async getUserByCredentials(credentials){
+        let user = null;
+    
+        if(credentials.email){
+            user = await User.findOne({email: credentials.email});
+        }
+        else if(credentials.phone){
+            user = await User.findOne({phone: credentials.phone})
+        }
+    
+        return user.toObject();
+    },
     async sendOTPToEmail(email){
         let otp = generateOTP();
         let body = htmlForOTP(otp);

@@ -22,11 +22,11 @@ userRouter.get("/users", userController.getUsers);
 
 userRouter.post('/verifyDevicePin', userController.verifyDevicePin);
 userRouter.post('/mobileLogin', userController.mobileLogin);
-
+userRouter.get('/users/:id', userController.getUser);
 userRouter.put('/refreshTokenCall', authGuard, userController.refreshTokenCall);
 userRouter.delete("/deactivateAccount", authGuard, userController.deactivateAccount);
 userRouter.put("/setPassword/", authGuard, userController.setPassword);
-
+userRouter.get("/get")
 // add signature
 userRouter.put('/uploadSignature/', upload.single('file'), authGuard, async (req, res, next) => {
     try {
@@ -59,7 +59,6 @@ userRouter.get("/matchPassword/:id/:confirmPassword", userController.confirmPass
 
 
 userRouter.get("/getSignature/:id", userSignatureController.getSignature);
-userRouter.get("/getUser/:id?", userController.getUser);
 
 
 

@@ -6,6 +6,8 @@ const bcrypt = require("bcryptjs");
 const otpGenerator = require("otp-generator");
 const mailService = require("../../services/MailService");
 const userServices = require("../../services/user.services");
+const cryptoJs = require("crypto-js");
+const jwt = require("jsonwebtoken");
 
 const accountSid = "ACfcb9da3700c2632b98d2c9dbd6ebd3d3";
 const authToken = "5e5c1a2d02929d0b6d09c31535fbd03b";
@@ -48,22 +50,34 @@ const otpController = {
   async verifySignupOtp(req, res, next){
     try{
       const {otp, encryptedOTPToken} = req.body;
-      let resBody = null;
-      resBody = await userServices.verifySignUpOTP(encryptedOTPToken, otp);
-
-      if(!resBody){
-        return res.status(400).json({
+      //Decrypt OTP Token
+      let otpToken = cryptoJs.AES.decrypt(encryptedOTPToken, process.env.ENCRYPTION_KEY).toString(cryptoJs.enc.Utf8);
+      //Verify Token for Temparing
+      let otpTokenDecrypted = jwt.verify(otpToken, process.env.OTP_TOKEN_SECRET);
+      
+      if(otp != otpTokenDecrypted.otp){
+        return res.status(400).send({
           success: false,
-          message: "request body is not valid"
+          message: "Otp doesn't match"
         })
       }
+
+      if(await userServices.getUserByCredentials(otpTokenDecrypted.credentials)){
+        return res.status(400).send({
+          success: false,
+          message: "User already exists with current credentials"
+        })
+      }
+
+      //getting equal make a jwt for making account//
+      let credentialsToken = jwt.sign(otpTokenDecrypted.credentials, process.env.SIGNUP_TOKEN_SECRET);
+      
       res.status(200).json({
         success: true,
-        data: {...resBody}
+        data: {credentialsToken}
       })
     }
     catch(e){
-      console.log(e);
       res.status(500).json({
         success: false,
         data: { e: e.message },

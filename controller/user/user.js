@@ -231,26 +231,19 @@ const userController = {
     try {
         const { id } = req.params;
 
-        // Ensure the index is created on the email field
-        await User.createIndexes([{ key: { email: 1 }, unique: true }]);
-
-        // Construct the query based on whether an ID is provided
-        const query = id ? { _id: id, ...req.body } : { ...req.body };
-
         // Find the user(s) matching the query
-        const result = await User.find(query);
+        let user  = await User.findById(id);
         let company = null;
-        if(id){
-          company = await Company.findOne({user : id });
+        if(user){
+          company = await Company.findOne({user : user._id });
         }
 
         // Handle the case where no user is found
-        if (result.length == 0) {
-          
-            return res.status(404).send({
-                success: false,
-                data: { message: "User not found" },
-            });
+        if(!user){
+          return res.status(404).send({
+            "success":false,
+            "message": "User with given id doesn't exist"
+          })
         }
 
         // Respond with the found user(s)
@@ -258,7 +251,7 @@ const userController = {
             success: true,
             data: {
                 message: "User found",
-                user: result,
+                user: {...user.toObject(), pin: undefined},
                 company
             },
         });
