@@ -5,7 +5,7 @@ const mobileLoginSchema = Joi.object({
       email: Joi.string().email().message('Invalid email format'),
       phone: Joi.object({
         countryCode: Joi.string().pattern(/^\+\d{1,3}$/).message('Invalid country code format').required(),
-        number: Joi.string().pattern(/^[0-9]{10}$/).message('Phone number must be 10 digits').required(),
+        number: Joi.number().integer().message('Phone number must be number').required(),
       })
     }).xor('email', 'phone').required().messages({
       'object.missing': 'Either email or phone must be provided in credentials',
@@ -38,8 +38,8 @@ const mobileLoginSchema = Joi.object({
 
   const refreshTokenSchema = Joi.object({
     refreshToken: Joi.string().required().messages({
-        'string.base': 'deviceId must be a string',
-        'any.required': 'deviceId is required'
+        'string.base': 'refreshToken must be a string',
+        'any.required': 'refreshToken is required'
     })
   })
 

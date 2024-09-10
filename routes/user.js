@@ -19,14 +19,14 @@ userRouter.post("/create-password", userController.createPassword);
 userRouter.post("/login", userController.login);
 userRouter.post("/forgot-password/verifyOTP", userOtpController.verifyForgotPasswordOtp);
 userRouter.get("/users", userController.getUsers);
-
 userRouter.post('/verifyDevicePin', userController.verifyDevicePin);
 userRouter.post('/mobileLogin', userController.mobileLogin);
 userRouter.get('/users/:id', userController.getUser);
-userRouter.put('/refreshTokenCall', authGuard, userController.refreshTokenCall);
 userRouter.delete("/deactivateAccount", authGuard, userController.deactivateAccount);
+userRouter.put('/refreshTokenCall', authGuard, userController.refreshTokenCall);
 userRouter.put("/setPassword/", authGuard, userController.setPassword);
-userRouter.get("/get")
+userRouter.put("/updateInfo", authGuard, userController.updateUser);
+userRouter.put("/verifyUpdateEmail", authGuard, userOtpController.verifyUpdateEmailOtp);
 // add signature
 userRouter.put('/uploadSignature/', upload.single('file'), authGuard, async (req, res, next) => {
     try {

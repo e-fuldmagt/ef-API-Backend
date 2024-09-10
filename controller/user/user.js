@@ -801,9 +801,9 @@ async loginWithPin(req, res) {
           "message": validate.error.message
         })
       }
-
       let {refreshToken} = req.body;
-
+      
+      console.log(refreshToken);
       let userId = req.user;
       let companyId = req.company;
 

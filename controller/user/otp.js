@@ -20,13 +20,13 @@ const otpController = {
   // ......................send otp ............................
   async sendOTPToCredentials(req, res, next){
     try{
-      const {email, countryCode, phoneNumber} = req.body;
+      const {email, phone} = req.body;
       let resBody = null;
       if(email){
         resBody = await userServices.sendOTPToEmail(email);
       }
-      if(countryCode && phoneNumber){
-        
+      if(phone){
+        resBody = await userServices.sendOTPToNumber(phone)
       }
       if(!resBody){
         return res.status(400).json({
@@ -78,6 +78,7 @@ const otpController = {
       })
     }
     catch(e){
+      console.log(e);
       res.status(500).json({
         success: false,
         data: { e: e.message },
@@ -103,6 +104,55 @@ const otpController = {
     }
     catch(e){
       console.log(e);
+      res.status(500).json({
+        success: false,
+        data: { e: e.message },
+      });
+    }
+  },
+  async verifyUpdateEmailOtp(req, res, next){
+    try{
+      const userId = req.user;
+      const {otp, encryptedOTPToken} = req.body;
+      //Decrypt OTP Token
+      let otpToken = cryptoJs.AES.decrypt(encryptedOTPToken, process.env.ENCRYPTION_KEY).toString(cryptoJs.enc.Utf8);
+      //Verify Token for Temparing
+      let otpTokenDecrypted = jwt.verify(otpToken, process.env.OTP_TOKEN_SECRET);
+      
+      if(otp != otpTokenDecrypted.otp){
+        return res.status(400).send({
+          success: false,
+          message: "Otp doesn't match"
+        })
+      }
+
+      
+      if(!otpTokenDecrypted.credentials.email){
+        return res.status(400).send({
+          success: false,
+          message: "Email doesn't not doesn't exist in credentials"
+        })
+      }
+
+      if(await userServices.getUserByCredentials(otpTokenDecrypted.credentials)){
+        return res.status(400).send({
+          success: false,
+          message: "User already exists with given email"
+        })
+      }
+
+      
+      let user = User.findById(userId);
+      user.email = otpTokenDecrypted.credentials.email;
+
+      await user.save()
+      
+      res.status(200).json({
+        success: true,
+        message: "Email has been changed successfully"
+      })
+    }
+    catch(e){
       res.status(500).json({
         success: false,
         data: { e: e.message },

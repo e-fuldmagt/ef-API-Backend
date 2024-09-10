@@ -19,7 +19,7 @@ const userServices = {
             user = await User.findOne({phone: credentials.phone})
         }
     
-        return user.toObject();
+        return user;
     },
     async sendOTPToEmail(email){
         let otp = generateOTP();
@@ -56,14 +56,12 @@ const userServices = {
     async registerUser(credentialsToken, userObj){
         const user = {...userObj};
         let credentials = jwt.verify(credentialsToken, process.env.SIGNUP_TOKEN_SECRET);
+        console.log(credentials);
         if(credentials.email){
             user.email = credentials.email
         }
         else{
-            user.phoneNumber = {
-                countryCode : credentials.countryCode,
-                number : credentials.number
-            }
+            user.phone = credentials.phone
         }
         //Adding User//
         user.pin = null;
@@ -217,8 +215,21 @@ const userServices = {
         // Send back the results
         return users;
     },
-    async sendOTPToNumber(countryCode, phoneNumber){
+    async sendOTPToNumber(phone){
+        let otp = generateOTP();
+        let body = "Your OTP for Power of Attorny is: " + otp;
+        let subject = "Phone Verification OTP";
         
+        //await sendEmail(email, subject, body);
+
+        let phoneVerificatoin = {
+            credentials: {phone},
+            otp: otp
+        }
+
+        let otpToken = jwt.sign(phoneVerificatoin, process.env.OTP_TOKEN_SECRET);
+        let encryptedOTPToken = CryptoJS.AES.encrypt(otpToken, process.env.ENCRYPTION_KEY).toString();
+        return {encryptedOTPToken, body, subject};
     }
 }
 
