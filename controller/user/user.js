@@ -639,7 +639,7 @@ async loginWithPin(req, res) {
         })
       }
 
-      let {credentials, pin, notificationId, deviceId} = req.body;
+      let {credentials, pin, deviceId} = req.body;
       console.log(credentials)
       //Use Body Schema Here//
       let user = await userServices.getUserByCredentials(credentials);
@@ -676,8 +676,6 @@ async loginWithPin(req, res) {
       
 
       user.deviceId = deviceId;
-
-      user.notificationIds.push(notificationId);
 
       let refreshToken = jwt.sign({userId: user._id}, process.env.REFRESH_TOKEN, {expiresIn: "30d"});
 

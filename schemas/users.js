@@ -16,11 +16,6 @@ const mobileLoginSchema = Joi.object({
     deviceId: Joi.string().required().messages({
       'string.base': 'deviceId must be a string',
       'any.required': 'deviceId is required'
-    }),
-  
-    notificationId: Joi.string().required().messages({
-      'string.base': 'notificationId must be a string',
-      'any.required': 'notificationId is required'
     })
   });
 
