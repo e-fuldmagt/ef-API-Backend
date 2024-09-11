@@ -65,7 +65,6 @@ const userSchema = new Schema({
   },
   deviceId: {
     type: String,
-    unique: true
   },
   refreshTokens: {
     type: [String],
