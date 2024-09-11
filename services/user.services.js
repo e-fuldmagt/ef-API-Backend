@@ -16,7 +16,10 @@ const userServices = {
             user = await User.findOne({email: credentials.email});
         }
         else if(credentials.phone){
-            user = await User.findOne({phone: credentials.phone})
+            user = await User.findOne({phone: {
+                countryCode: credentials.phone.countryCode,
+                number: parseInt(credentials.phone.number)
+            }})
         }
     
         return user;
@@ -106,14 +109,7 @@ const userServices = {
         return {authToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null};
     },
     async login(credentials, pin){
-        let user = null;
-
-        if(credentials.email){
-            user = await User.findOne({email: credentials.email});
-        }
-        else if(credentials.phone){
-            user = await User.findOne({phone: credentials.phone})
-        }
+        let user = await this.getUserByCredentials(credentials);
 
         if(!user){
             throw new Error("User Not Found");
@@ -146,13 +142,7 @@ const userServices = {
             return null;
         }
         let credentials = otpTokenDecrypted.credentials;
-        let user=null;
-        if(credentials.email){
-            user = await User.findOne({email: credentials.email})
-        }
-        else if(credentials.phone){
-            user = await User.findOne({phone: credentials.phone})
-        }
+        let user= await this.getUserByCredentials(credentials);
         
         if(!user){
             return null;

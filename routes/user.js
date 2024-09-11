@@ -26,7 +26,8 @@ userRouter.delete("/deactivateAccount", authGuard, userController.deactivateAcco
 userRouter.put('/refreshTokenCall', authGuard, userController.refreshTokenCall);
 userRouter.put("/setPassword/", authGuard, userController.setPassword);
 userRouter.put("/updateInfo", authGuard, userController.updateUser);
-userRouter.put("/verifyUpdateEmail", authGuard, userOtpController.verifyUpdateEmailOtp);
+userRouter.put("/updateEmail", authGuard, userOtpController.verifyUpdateEmailOtp);
+userRouter.put("/updatePhoneNumber", authGuard, userOtpController.verifyUpdatePhoneNumberOtp)
 // add signature
 userRouter.put('/uploadSignature/', upload.single('file'), authGuard, async (req, res, next) => {
     try {

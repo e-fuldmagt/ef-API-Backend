@@ -142,14 +142,68 @@ const otpController = {
       }
 
       
-      let user = User.findById(userId);
+      let user = await User.findById(userId);
       user.email = otpTokenDecrypted.credentials.email;
 
       await user.save()
       
       res.status(200).json({
         success: true,
-        message: "Email has been changed successfully"
+        message: "Email has been changed successfully",
+        data: {
+          updatedUser: user
+        }
+      })
+    }
+    catch(e){
+      res.status(500).json({
+        success: false,
+        data: { e: e.message },
+      });
+    }
+  },
+  async verifyUpdatePhoneNumberOtp(req, res, next){
+    try{
+      const userId = req.user;
+      const {otp, encryptedOTPToken} = req.body;
+      //Decrypt OTP Token
+      let otpToken = cryptoJs.AES.decrypt(encryptedOTPToken, process.env.ENCRYPTION_KEY).toString(cryptoJs.enc.Utf8);
+      //Verify Token for Temparing
+      let otpTokenDecrypted = jwt.verify(otpToken, process.env.OTP_TOKEN_SECRET);
+      
+      if(otp != otpTokenDecrypted.otp){
+        return res.status(400).send({
+          success: false,
+          message: "Otp doesn't match"
+        })
+      }
+
+      
+      if(!otpTokenDecrypted.credentials.phone){
+        return res.status(400).send({
+          success: false,
+          message: "Phone number doesn't not doesn't exist in credentials"
+        })
+      }
+      console.log(otpTokenDecrypted.credentials);
+      if(await userServices.getUserByCredentials(otpTokenDecrypted.credentials)){
+        return res.status(400).send({
+          success: false,
+          message: "User already exists with given email"
+        })
+      }
+
+      let user = await User.findById(userId);
+      user.phone = otpTokenDecrypted.credentials.phone;
+
+      await user.save()
+      
+      res.status(200).json({
+        success: true,
+        message: "Phone has been changed successfully",
+        data: {
+          updatedUser: user
+        }
       })
     }
     catch(e){

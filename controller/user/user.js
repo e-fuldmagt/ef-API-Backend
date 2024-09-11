@@ -601,30 +601,26 @@ async loginWithPin(req, res) {
   // ......................update user .............................
   async updateUser(req, res, next) {
     try {
-      const id = req.params.id;
+      const userId = req.user;
 
-      let userExists = await User.findOne({ _id: id });
+      let user = await User.findById(userId);
 
-      if (!userExists) {
-        return res
-          .status(400)
+      if (!user) {
+        return res.status(404)
           .send({ success: false, data: { error: "User doesn't exist" } });
-      } else {
-        await User.findOneAndUpdate({ _id: id }, req.body)
-          .then((result) => {
-            // Changed parameter name from res to result
-            return res.status(200).send({
-              success: true,
-              data: { message: "details updated successfully" },
-            });
-          })
-          .catch((err) => {
-            return res
-              .status(400)
-              .send({ success: false, data: { error: err.message } });
-          });
       }
+      req.body.email = undefined;
+      req.body.phone = undefined;
+      let updatedUser = await User.findOneAndUpdate({ _id: userId }, req.body, {new: true})
+      
+      res.status(200).send({
+        success: "true",
+        message: "User has been updated successfully",
+        data: {updatedUser}
+      })
+          
     } catch (error) {
+      console.log(error);
       // Handle any unexpected errors
       res.status(500).send({
         success: false,
@@ -646,15 +642,7 @@ async loginWithPin(req, res) {
       let {credentials, pin, notificationId, deviceId} = req.body;
       
       //Use Body Schema Here//
-
-      let user = null;
-
-      if(credentials.email){
-          user = await User.findOne({email: credentials.email});
-      }
-      else if(credentials.phone){
-          user = await User.findOne({phone: credentials.phone})
-      }
+      let user = await userServices.getUserByCredentials(credentials);
 
       if(!user){
           return res.status(404).send({
