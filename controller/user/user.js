@@ -21,12 +21,12 @@ const userController = {
   // ----------------- register User -----------------
   async registerUser(req, res) {
     try {
-      const {credentialsToken, name, address, dateOfBirth} = req.body
+      const {emailCredentialsToken, phoneCredentialsToken, name, address, dateOfBirth} = req.body
       userObj = {
         name, address, dateOfBirth
       }
       
-      let resBody = await userServices.registerUser(credentialsToken, userObj);
+      let resBody = await userServices.registerUser(emailCredentialsToken, phoneCredentialsToken, userObj);
 
 
 
@@ -640,7 +640,7 @@ async loginWithPin(req, res) {
       }
 
       let {credentials, pin, notificationId, deviceId} = req.body;
-      
+      console.log(credentials)
       //Use Body Schema Here//
       let user = await userServices.getUserByCredentials(credentials);
 

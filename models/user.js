@@ -21,18 +21,21 @@ const userSchema = new Schema({
   phone: {
     countryCode: {
       type: String,
-      required: false, // this ensures countryCode can be null
+      trim: true,
+      required: true, // this ensures countryCode can be null
     },
     number: {
       type: Number,
-      trim: true, unique: true, sparse: true
+      unique: true,
+      trim: true,
+      required: true,
     }
   },
   email: {
     type: String,
     unique: true,
-    trim: true, 
-    sparse: true
+    trim: true,
+    required: true,
   },
   admin: {
     type: Boolean,
@@ -75,12 +78,6 @@ const userSchema = new Schema({
     required: true
   } 
 });
-// Schema-level validation
-userSchema.pre('validate', function (next) {
-  if (!this.email && !this.phone) {
-    this.invalidate('email', 'At least one field must be provided out of email and phone number');
-  }
-  next();
-});
+
 const User =  mongoose.model("user", userSchema, "users");
 module.exports = User;

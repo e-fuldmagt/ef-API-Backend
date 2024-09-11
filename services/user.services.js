@@ -56,16 +56,17 @@ const userServices = {
             return null;
         }
     },
-    async registerUser(credentialsToken, userObj){
+    async registerUser(emailCredentialsToken, phoneCredentialsToken, userObj){
         const user = {...userObj};
-        let credentials = jwt.verify(credentialsToken, process.env.SIGNUP_TOKEN_SECRET);
-        console.log(credentials);
-        if(credentials.email){
-            user.email = credentials.email
-        }
-        else{
-            user.phone = credentials.phone
-        }
+        let emailCredentials = jwt.verify(emailCredentialsToken, process.env.SIGNUP_TOKEN_SECRET);
+        let phoneCredentials = jwt.verify(phoneCredentialsToken, process.env.SIGNUP_TOKEN_SECRET);
+        if(!emailCredentials.email)
+            throw Error("Email not found");
+        if(!phoneCredentials.phone)
+            throw Error("phone not found");
+        
+        user.email = emailCredentials.email
+        user.phone = phoneCredentials.phone
         //Adding User//
         user.pin = null;
         //
