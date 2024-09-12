@@ -7,6 +7,7 @@ const http = require("http");
 const mongoose = require("mongoose");
 const path = require("path");
 const { sendMessage } = require("../services/SMSService");
+const { sendNotificationByUserId } = require("../services/notification.services");
 
 //Comment update
 class App {
@@ -31,6 +32,7 @@ class App {
     this.app.use(express.json());
     dotenv.config();
   }
+  
   connectToMongoDB() {
     const db = process.env.MONGO_CONNECTION;
     mongoose.connect(

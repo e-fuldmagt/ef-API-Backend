@@ -38,13 +38,14 @@ const companySchema = new Schema({
     type: String,
   },
   phone: {
-    code: {
+    countryCode: {
       type: String,
       required: true,
     },
     number: {
       type: Number,
       required: true,
+      unique: true
     },
   },
   signature: {
@@ -66,4 +67,4 @@ const companySchema = new Schema({
 });
 
 const Company =  mongoose.model("company", companySchema, "companies");
-module.exports =Company;
+module.exports = Company;

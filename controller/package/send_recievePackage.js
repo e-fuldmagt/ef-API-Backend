@@ -107,12 +107,6 @@ const packageController = {
     }
   },
 
-  // get user package
-
-  // get user package
-
-  // get user package
-
   async getUserPackage(req, res) {
     try {
       const { id } = req.params;

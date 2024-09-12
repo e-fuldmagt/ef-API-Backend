@@ -23,7 +23,7 @@ const userController = {
     try {
       const {emailCredentialsToken, phoneCredentialsToken, name, address, dateOfBirth} = req.body
       userObj = {
-        name, address, dateOfBirth
+        name, address, dateOfBirth: new Date(dateOfBirth)
       }
       
       let resBody = await userServices.registerUser(emailCredentialsToken, phoneCredentialsToken, userObj);
@@ -609,14 +609,14 @@ async loginWithPin(req, res) {
         return res.status(404)
           .send({ success: false, data: { error: "User doesn't exist" } });
       }
-      req.body.email = undefined;
-      req.body.phone = undefined;
+      delete req.body.email;
+      delete req.body.phone;
       let updatedUser = await User.findOneAndUpdate({ _id: userId }, req.body, {new: true})
       
       res.status(200).send({
         success: "true",
         message: "User has been updated successfully",
-        data: {updatedUser}
+        data: {updatedUser, pin:undefined}
       })
           
     } catch (error) {

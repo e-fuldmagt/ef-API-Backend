@@ -41,6 +41,10 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  dateOfBirth: {
+    type: Date,
+    required: true
+  },
   pin: {
     type: String,
   },

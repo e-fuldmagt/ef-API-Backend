@@ -12,15 +12,16 @@ const authGuard = require("../middleware/authGuard.middleware");
 const companyRouter = express.Router();
 
 // routes
+companyRouter.post("/verifyCompanyCredentials", authGuard, companyController.verifyCompanyCredentials);
 companyRouter.post("/register", authGuard, companyController.addCompany);
 
-companyRouter.get("/getCompany/:id?", companyController.getCompany);
+companyRouter.get("/getCompany/:id", companyController.getSpecificCompany);
 
-companyRouter.put("/update/", authGuard, companyController.updateCompany);
+companyRouter.put("/update", authGuard, companyController.updateCompany);
 companyRouter.get("/getSignature/:id", companySignatureController.getSignature);
-
+companyRouter.get("/getCompanies", companyController.getCompanies);
 // add signature route
-companyRouter.put('/upload/', upload.single('file'), authGuard, async (req, res, next) => {
+companyRouter.put('/uploadSignature/', upload.single('file'), authGuard, async (req, res, next) => {
     try {
         const id = req.company; // Extract id from request parameters
         await uploadFileToFirebase(Company, id)(req, res, next); // Pass id to uploadFileToFirebase function

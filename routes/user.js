@@ -9,9 +9,10 @@ const {upload, uploadFileToFirebase} = require("../services/Firebase_SignStorage
 
 const User = require('../models/user');
 const authGuard = require("../middleware/authGuard.middleware");
+const notificationController = require("../controller/notifications/notifications");
 const userRouter = express.Router();
 
-//Sign Up//
+//User Sign up Functionality//
 userRouter.post("/sendOTP", userOtpController.sendOTPToCredentials);
 userRouter.post("/signup/verifyOTP", userOtpController.verifySignupOtp);
 userRouter.post("/signup/registerUser", userController.registerUser);
@@ -28,7 +29,6 @@ userRouter.put("/setPassword/", authGuard, userController.setPassword);
 userRouter.put("/updateInfo", authGuard, userController.updateUser);
 userRouter.put("/updateEmail", authGuard, userOtpController.verifyUpdateEmailOtp);
 userRouter.put("/updatePhoneNumber", authGuard, userOtpController.verifyUpdatePhoneNumberOtp)
-// add signature
 userRouter.put('/uploadSignature/', upload.single('file'), authGuard, async (req, res, next) => {
     try {
         const id = req.user; // Extract id from request parameters
@@ -38,34 +38,11 @@ userRouter.put('/uploadSignature/', upload.single('file'), authGuard, async (req
         res.status(500).send({ success: false, message: 'Failed to handle file upload' });
     }
 }, userSignatureController.addSignature);
-//--------------------------------------------------------------------------------------
 
-userRouter.post("/sendOTPToEmail", userOtpController.sendOTPToEmail);
-userRouter.post("/sendOTPForPin", userOtpController.sendOTPForPin);
-userRouter.post("/register", userController.registerUser);
-userRouter.post("/createPrivateUser", userController.createUser);
-
-userRouter.put("/verifyEmail", userOtpController.verifyEmail);
-userRouter.put("/sendOTPToNumber", userOtpController.sendOtpToNumber);
-
-userRouter.put("/setPin/:id", userController.setPin);
-
-userRouter.put("/resetPin", userController.reSetPin);
-
-userRouter.get("/loginWithPin/:pin", userController.loginWithPin);
-userRouter.put("/forgetPassword", userController.forgetPassword);
-userRouter.put("/update/:id", userController.updateUser);
-
-userRouter.get("/matchPassword/:id/:confirmPassword", userController.confirmPassword);
-
-
-userRouter.get("/getSignature/:id", userSignatureController.getSignature);
+//User Notifications//
+userRouter.put("/add-notifications-token/", authGuard, notificationController.addNotificationToken);
 
 
 
-  
-
-// userRouter.get("/getUsers", userController.getUsers);
-// userRouter.get("/deleteUser/:id", userController.deleteUser);
 
 module.exports = userRouter;

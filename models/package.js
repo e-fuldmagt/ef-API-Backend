@@ -2,53 +2,75 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 const packageSchema = new Schema({
-  user: {
+  accountType: {
+    type: String,
+    required: true, // values: user, company
+    enum: ["user", "company"],
+  },
+  title: {
+    type:String,
+    required: true
+  },
+  postImage: {
+    type: String,
+    required: true
+  },
+  senderId: {
     type: mongoose.Schema.ObjectId,
     required: true,
-  },
-  userAccount: {
-    type: String,
-    required: true, // values, user, company
-  },
-  reciever: {
-    type: mongoose.Schema.ObjectId,
-  },
-  recieverAccount: {
-    type: String,
+    refPath: 'accountType', // Dynamic reference based on accountType
   },
   expiry: {
     type: Date,
     required: true,
   },
-  isRequest: {
+  type: {
+    type: String,
+    required: true,
+    enum: ["send", "request"]
+  },
+  revoked:{
     type: Boolean,
-    default: false,
+    default: false
   },
-  revoke:{
-    type: Boolean
-  },
-  revokeDate:{
+  revokedDate:{
     type: Date
   },
-  recieverName: {
-    firstName: { type: String },
-    lastName: { type: String },
+  receiverId: {
+    type: mongoose.Schema.ObjectId,
+    ref: "user",
   },
-  recieverDOB: {
+  receiverName: {
     type: String,
+    required: true
   },
-  recieverEmail: {
+  receiverDOB: {
+    type: Date,
+    required: true
+  },
+  receiverEmail: {
     type: String,
+    required: true
   },
-  recieverNumber: {
-    type: Number,
+  receiverPhone: {
+    type:{
+      countryCode: String,
+      number: Number,
+    },
+    required: true
   },
   signature: {
     type: String,
+    required: true
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  acknowledged: {
+    type: Boolean,
+    default: false
+  }
 });
-module.exports = mongoose.model("package", packageSchema, "packages");
+const Package = mongoose.model("package", packageSchema, "packages");
+module.exports = Package;

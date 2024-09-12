@@ -57,6 +57,7 @@ const userServices = {
         }
     },
     async registerUser(emailCredentialsToken, phoneCredentialsToken, userObj){
+        console.log(emailCredentialsToken, phoneCredentialsToken, userObj)
         const user = {...userObj};
         let emailCredentials = jwt.verify(emailCredentialsToken, process.env.SIGNUP_TOKEN_SECRET);
         let phoneCredentials = jwt.verify(phoneCredentialsToken, process.env.SIGNUP_TOKEN_SECRET);

@@ -66,4 +66,15 @@ const uploadFileToFirebaseWithoutDeletingPrevious = async (req, res, next) => {
   }
 };
 
-module.exports = { upload, uploadFileToFirebase, uploadFileToFirebaseWithoutDeletingPrevious };
+const uploadFileObjectToFirebase = async (fileObject, userId) => {
+  if(!fileObject)
+    return;
+
+  const fileName = `${Date.now()}_${userId}_${fileObject.originalname}`;
+  const storageRef = ref(storage, `uploads/${fileName}`);
+  await uploadBytes(storageRef, fileObject.buffer, { contentType: fileObject.mimetype });
+  const publicUrl = await getDownloadURL(storageRef);
+
+  return publicUrl;
+}
+module.exports = { upload, uploadFileToFirebase, uploadFileToFirebaseWithoutDeletingPrevious, uploadFileObjectToFirebase };
