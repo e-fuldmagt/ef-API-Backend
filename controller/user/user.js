@@ -23,7 +23,11 @@ const userController = {
     try {
       const {emailCredentialsToken, phoneCredentialsToken, name, address, dateOfBirth} = req.body
       userObj = {
-        name, address, dateOfBirth: new Date(dateOfBirth)
+        name, address
+      }
+
+      if(dateOfBirth){
+        userObj.dateOfBirth = new Date(dateOfBirth)
       }
       
       let resBody = await userServices.registerUser(emailCredentialsToken, phoneCredentialsToken, userObj);

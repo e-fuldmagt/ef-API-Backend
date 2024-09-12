@@ -45,8 +45,7 @@ const packageSchema = new Schema({
     required: true
   },
   receiverDOB: {
-    type: Date,
-    required: true
+    type: Date
   },
   receiverEmail: {
     type: String,
