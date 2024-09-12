@@ -70,6 +70,9 @@ const packageSchema = new Schema({
   acknowledged: {
     type: Boolean,
     default: false
+  },
+  acknowledgedDate: {
+    type: Date,
   }
 });
 const Package = mongoose.model("package", packageSchema, "packages");

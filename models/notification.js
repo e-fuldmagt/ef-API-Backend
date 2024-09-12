@@ -6,8 +6,9 @@ const Schema = mongoose.Schema;
 const actionDataSchema = new mongoose.Schema({
   actionType: {
     type: String,
-    enum: ['simple', 'sent_package', 'receive_package'],
+    enum: ['default', 'sent_package', 'receive_package'],
     required: true,
+    default: "default"
   },
   package: {
     type: Schema.Types.ObjectId, 
