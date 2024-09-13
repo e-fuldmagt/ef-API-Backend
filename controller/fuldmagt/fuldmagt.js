@@ -377,7 +377,7 @@ const fuldmagtController = {
                                 "revoked", // If true, set validity to "revoked"
                                 {
                                     $cond: [
-                                        { $lt: [new Date(), "$expiry"] }, // Check if current date is less than expiry
+                                        { $gt: [new Date(), "$expiry"] }, // Check if current date is less than expiry
                                         "expired", // If expiry is less than the current date, set validity to "expired"
                                         "$expiry" // Otherwise, set it to the expiry date
                                     ]

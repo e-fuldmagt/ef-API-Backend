@@ -41,7 +41,12 @@ const notificationSchema = new Schema({
   },
   createdAt:{
     type: Date,
+    required: true,
     default: new Date()
+  },
+  read: {
+    type: Boolean,
+    default: false
   }
 });
 

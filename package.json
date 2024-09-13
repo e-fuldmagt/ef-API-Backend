@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "proxy": "http://localhost:8000",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
