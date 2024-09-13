@@ -14,10 +14,11 @@ const fuldmagtSchema = new Schema({
   accountType: {
     type: String,
     enum: ["user", "company"],
+    default: "user"
   },
-  fuldmagtGiverId: {
-    type: mongoose.Schema.ObjectId,
-    refPath: 'accountType', // Dynamic reference based on accountType
+  fuldmagtGiverId:{
+    type: Schema.ObjectId,
+    refPath: 'accountType'
   },
   fuldmagtGiverName: {
     type: String,
@@ -44,32 +45,6 @@ const fuldmagtSchema = new Schema({
       number: Number,
     },
     required: true
-  },
-  signature: {
-    type: String,
-    required: true
-  },
-  revoked:{
-    type: Boolean,
-    default: false
-  },
-  revokedDate:{
-    type: Date
-  },
-  expiry: {
-    type: Date,
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  acknowledged: {
-    type: Boolean,
-    default: false
-  },
-  acknowledgedDate: {
-    type: Date,
   }
 });
 

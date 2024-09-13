@@ -6,15 +6,15 @@ const Schema = mongoose.Schema;
 const actionDataSchema = new mongoose.Schema({
   actionType: {
     type: String,
-    enum: ['default', 'sent_package', 'receive_package'],
+    enum: ['default', 'create_fuldmagt', 'update_fuldmagt', 'revoke_fuldmagt', 'acknowledge_fuldmagt'],
     required: true,
     default: "default"
   },
-  package: {
+  fuldmagtId: {
     type: Schema.Types.ObjectId, 
     ref: "Package",
     required: function () {
-      return this.actionType === 'sent_package' || this.actionType === 'receive_package';
+      return this.actionType === 'create_fuldmagt' || this.actionType === 'update_fuldmagt' || this.actionType === 'revoke_fuldmagt' || this.actionType === 'acknowledge_fuldmagt';
     },
   }
 }, { _id: false });

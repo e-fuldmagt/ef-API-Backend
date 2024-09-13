@@ -1,3 +1,4 @@
+const Notification = require("../models/notification");
 const User = require("../models/user");
 const { firebase } = require("./Firsebase_Notifications");
 
@@ -14,7 +15,7 @@ function getMessageBody(notificationId, image, title, body, data){
 }
 
 let notificationServices = {
-    async sendNotificationByUserId(userId, title, body, data, image){
+    async sendFirebaseNotificationByUserId(userId, title, body, data, image){
         let user = await User.findById(userId);
         let notificationPromises = [];
         let notificationIdsWithErrors = [];
@@ -48,6 +49,18 @@ let notificationServices = {
         }
         
         return status
+    },
+    async sendNotification({title, body, imageUrl, data, recipient}){
+        try{
+            let notification = new Notification({title, body, imageUrl, data, recipient});
+
+            await notification.save();
+
+            await this.sendFirebaseNotificationByUserId(receipt, title, body, data, imageUrl);
+        }
+        catch(err){
+            console.log(err);
+        }
     }
 }
 

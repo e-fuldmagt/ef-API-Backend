@@ -138,6 +138,7 @@ const userServices = {
         let otpToken = CryptoJS.AES.decrypt(encryptedOTPToken, process.env.ENCRYPTION_KEY).toString(CryptoJS.enc.Utf8);
         //Verify Token for Temparing
         let otpTokenDecrypted = jwt.verify(otpToken, process.env.OTP_TOKEN_SECRET);
+        console.log(otpTokenDecrypted);
         //Check if OTPs are Equal
         if(otp != otpTokenDecrypted.otp)
         {
