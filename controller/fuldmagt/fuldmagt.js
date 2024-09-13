@@ -368,9 +368,9 @@ const fuldmagtController = {
 
             return res.status(200).send({
                 "success": true,
-                "data": [
+                "data": {
                     fuldmagts
-                ]
+                }
             })
         }
         catch(err){
