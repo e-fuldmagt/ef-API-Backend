@@ -41,6 +41,7 @@ userRouter.put('/uploadSignature/', upload.single('file'), authGuard, async (req
 
 //User Notifications//
 userRouter.put("/add-notifications-token/", authGuard, notificationController.addNotificationToken);
+userRouter.get("/notifications", authGuard, notificationController.getUserNotifications)
 
 
 

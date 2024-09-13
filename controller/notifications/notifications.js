@@ -1,7 +1,30 @@
+const Notification = require("../../models/notification");
 const User = require("../../models/user");
 
 
 const notificationController = {
+  async getUserNotifications(req, res, next){
+    try{
+        let userId = req.user;
+
+        let notifications  = await Notification.find({
+            recipient: userId
+        }).sort({ createdAt: -1 });
+
+        return res.status(200).send({
+            "success": true,
+            "data": {
+                notifications
+            }
+        })
+    }
+    catch(err){
+        return res.status(500).send({
+            success: false,
+            message: err.message
+        });
+    }
+  },
   async addNotificationToken(req, res, next){
     try{
         let userId = req.user;

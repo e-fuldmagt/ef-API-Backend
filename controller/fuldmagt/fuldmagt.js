@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { verifyCreateFuldmagt } = require("../../schemas/fuldmagt");
 const Fuldmagt = require("../../models/fuldmagt");
 const fuldmagtServices = require("../../services/fuldmagt.services");
+const mongoose = require("mongoose");
 
 
 
@@ -358,13 +359,35 @@ const fuldmagtController = {
     async getUserfuldmagts(req, res, next){
         try{
             let userId = req.user;
-
-            let fuldmagts  = await Fuldmagt.find({
-                $or: [
-                    { fuldmagtGiverId: userId },
-                    { agentId: userId }
-                  ]
-            })
+            let objectIdUserId = new mongoose.Types.ObjectId(userId);
+            let fuldmagts = await Fuldmagt.aggregate([
+                {
+                    $match: {
+                        $or: [
+                            { fuldmagtGiverId: objectIdUserId },
+                            { agentId: objectIdUserId }
+                        ]
+                    }
+                },
+                {
+                    $addFields: {
+                        validity: {
+                            $cond: [
+                                { $eq: ["$revoked", true] }, // Check if revoked is true
+                                "revoked", // If true, set validity to "revoked"
+                                {
+                                    $cond: [
+                                        { $lt: [new Date(), "$expiry"] }, // Check if current date is less than expiry
+                                        "expired", // If expiry is less than the current date, set validity to "expired"
+                                        "$expiry" // Otherwise, set it to the expiry date
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                { $sort: { createdAt: -1 } } // Sort by createdAt in descending order
+            ]);
 
             return res.status(200).send({
                 "success": true,
