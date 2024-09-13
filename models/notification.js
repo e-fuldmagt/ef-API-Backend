@@ -38,6 +38,10 @@ const notificationSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId, // reference to User schema
     ref: 'User',
     required: true,
+  },
+  createdAt:{
+    type: Date,
+    default: new Date()
   }
 });
 

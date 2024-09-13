@@ -131,7 +131,13 @@ const userServices = {
 
         let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN);
 
-        return {authToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null};
+        let refreshToken = jwt.sign({userId: user._id}, process.env.REFRESH_TOKEN, {expiresIn: "30d"});
+
+        user.refreshTokens.push(refreshToken);
+
+        await user.save();
+
+        return {authToken, refreshToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null};
     },
     async verifyForgotPasswordOtp(encryptedOTPToken, otp){
         //Decrypt OTP Token

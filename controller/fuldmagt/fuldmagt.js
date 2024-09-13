@@ -114,8 +114,7 @@ const fuldmagtController = {
             
             await fuldmagt.save();
 
-            let fuldmagtToken = jwt.sign({fuldmagtId: fuldmagt._id}, process.env.FULDMAGT_TOKEN)
-            
+            fuldmagtServices.notifyFuldmagtRevoke(fuldmagt);
             return res.status(200).send({
                 success: true,
                 message: "fuldmagt has been revoked successfully",

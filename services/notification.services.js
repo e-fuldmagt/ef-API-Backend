@@ -55,8 +55,8 @@ let notificationServices = {
             let notification = new Notification({title, body, imageUrl, data, recipient});
 
             await notification.save();
-
-            await this.sendFirebaseNotificationByUserId(receipt, title, body, data, imageUrl);
+            console.log(data);
+            await this.sendFirebaseNotificationByUserId(recipient, title, body, data, imageUrl);
         }
         catch(err){
             console.log(err);
