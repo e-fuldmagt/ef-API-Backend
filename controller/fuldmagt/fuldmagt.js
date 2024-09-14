@@ -25,7 +25,7 @@ const fuldmagtController = {
                 ...req.body,
                 agentPhone: {
                     countryCode: req.body.agentCountryCode,
-                    number: req.body.agentNumber
+                    number: req.body.agentPhoneNumber
                 }
             }
             if(fuldmagtData.postImage)
