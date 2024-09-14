@@ -22,13 +22,14 @@ const fuldmagtController = {
             }
             let fuldmagtData = {
                 signature: req.signatureUrl,
-                postImage: req.postImageUrl,
                 ...req.body,
                 agentPhone: {
                     countryCode: req.body.agentCountryCode,
                     number: req.body.agentNumber
                 }
             }
+            if(fuldmagtData.postImage)
+                fuldmagtData.postImage = req.postImageUrl;
             let agentId = req.body.agentId;
             let agent = null;
             if(agentId){
