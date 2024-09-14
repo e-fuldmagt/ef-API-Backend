@@ -8,7 +8,9 @@ const fuldmagtSchema = new Schema({
     required: true
   },
   postImage: {
-    type: String
+    type: String,
+    required: true,
+    default: ""
   },
   accountType: {
     type: String,
