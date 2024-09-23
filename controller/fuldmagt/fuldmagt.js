@@ -489,9 +489,6 @@ const fuldmagtController = {
             });
         }
     },
-    async createFuldmagtRequest(req, res, next){
-
-    },
     async getUserfuldmagts(req, res, next){
         try{
             let userId = req.user;
