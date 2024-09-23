@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken")
 const notificationServices = require("./notification.services")
 const { sendEmail } = require("./MailService")
+const mongoose = require("mongoose")
 
 const revokedFuldmagtEmailTemplate = (fuldmagt)=>{
     return `
@@ -248,6 +249,41 @@ const fuldmagtServices = {
     },
     async notifyFuldmagtUpdate(){
 
+    },
+    async fulmagtsChangeEmail(oldEmail, newEmail){
+        const updatedFuldmagts = await Fuldmagt.findOneAndUpdate(
+            {
+              agentEmail: oldEmail // Check if email matches
+            },
+            {
+              $set: { agentEmail: newEmail } // Update the fuldmagtGiverId with the new ID
+            },
+            { new: true } // Return the updated document
+        );
+
+        return updatedFuldmagts;
+    },
+    async fuldmagtsAssignUserIdByEmail(userId, email){
+        const updatedFuldmagt = await Fuldmagt.findOneAndUpdate(
+            {
+              fuldmagtGiverId: { $exists: false }, // Check if fuldmagtGiverId is undefined
+              agentEmail: email // Check if email matches
+            },
+            {
+              $set: { fuldmagtGiverId: new mongoose.Schema.Types.ObjectId(userId) } // Update the fuldmagtGiverId with the new ID
+            },
+            { new: true } // Return the updated document
+        );
+
+        return updatedFuldmagt;
+    },
+    async fuldmagtAssignmentForUserRegistration(user){
+        let userEmail = user.email;
+
+
+    },
+    async fuldmagtAssignmentForEmailChange(user){
+        
     }
 }
 

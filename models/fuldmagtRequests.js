@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const fuldmagtSchema = new Schema({
+const fuldmagtRequestSchema = new Schema({
   title: {
     type:String,
     required: true
@@ -22,6 +22,17 @@ const fuldmagtSchema = new Schema({
   },
   fuldmagtGiverName: {
     type: String,
+    required: true
+  },
+  fuldmagtGiverEmail: {
+    type: String,
+    required: true
+  },
+  fuldmagtGiverPhone: {
+    type:{
+      countryCode: String,
+      number: Number,
+    },
     required: true
   },
   agentId: {
@@ -48,6 +59,6 @@ const fuldmagtSchema = new Schema({
   }
 });
 
-const Fuldmagt = mongoose.model("fuldmagt", fuldmagtSchema, "fuldmagts");
+const FuldmagtRequest = mongoose.model("fuldmagtRequest", fuldmagtRequestSchema, "fuldmagtRequests");
 
-module.exports = Fuldmagt
+module.exports = FuldmagtRequest

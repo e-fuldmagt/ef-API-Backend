@@ -2,10 +2,11 @@ const fuldmagt = require("../../models/fuldmagt");
 const User = require("../../models/user");
 const Company = require("../../models/company");
 const jwt = require("jsonwebtoken");
-const { verifyCreateFuldmagt } = require("../../schemas/fuldmagt");
+const { verifyCreateFuldmagt, verifyRequestFuldmagt } = require("../../schemas/fuldmagt");
 const Fuldmagt = require("../../models/fuldmagt");
 const fuldmagtServices = require("../../services/fuldmagt.services");
 const mongoose = require("mongoose");
+const FuldmagtRequest = require("../../models/fuldmagtRequests");
 
 
 
@@ -87,8 +88,139 @@ const fuldmagtController = {
             });
         }
     },
-    async requestFuldmagt(req, res, next){
 
+    async approveFuldmagtRequest(req, res, next){
+        try{
+            let fuldmagtRequestId = req.params.id;
+
+            let fuldmagtRequest = await FuldmagtRequest.findById(fuldmagtRequestId);
+
+            if(!fuldmagtRequest)
+                return res.status(404).send({
+                    success:false,
+                    message: "fuldmagt request not found with given id"
+                });
+
+            if(fuldmagtRequest.fuldmagtGiverId != req.user && fuldmagtRequest.fuldmagtGiverId != req.company){
+                return res.status(401).send({
+                    success: false,
+                    message: "you don't have access to this fuldmagt"
+                })
+            }
+
+            let fuldmagtData = {
+                title: fuldmagtRequest.title,
+                postImage: fuldmagtRequest.postImage,
+                accountType: fuldmagtRequest.fuldmagtGiverId == req.user? "user" : "company",
+                fuldmagtGiverId: fuldmagtGiverId,
+                fuldmagtGiverName: fuldmagtGiverName,
+                agentId: agentId,
+                agentName: agentName,
+                agentDOB: agentDOB,
+                agentEmail:agentEmail,
+                agentPhone: agentPhone,
+                signature: req.signatureUrl
+            }
+
+            let fuldmagt = new Fuldmagt(fuldmagtData);
+            
+            await fuldmagt.save();
+            await fuldmagtRequest.delete();
+
+            return res.status(400).send({
+                success:true,
+                message: "Fuldmagt has been created successfully",
+                data: {
+                    fuldmagt
+                }
+            })
+        }
+        catch(err){
+            return res.status(500).send({
+                success: false,
+                message: err.message
+            });
+        }
+    },
+
+    async requestFuldmagt(req, res, next){
+        try{
+            let validate = verifyRequestFuldmagt.validate(req.body);
+            
+            if(validate.error){
+                return res.status(400).send({
+                "success": true,
+                "message": validate.error.message
+                })
+            }
+            let fuldmagtData = {
+                ...req.body,
+                fuldmagtGiverPhone: {
+                    countryCode: req.body.fuldmagtGiverCountryCode,
+                    number: req.body.fuldmagtGiverPhoneNumber
+                }
+            }
+            if(req.postImageUrl)
+                fuldmagtData.postImage = req.postImageUrl;
+            let fuldmagtGiverId = req.body.agentId;
+            let fuldmagtGiver = null;
+            if(fuldmagtGiverId){
+                fuldmagtGiver = await User.findById(fuldmagtGiverId);
+
+                if(!fuldmagtGiver){
+                    return res.status(404).send({
+                        "success": false,
+                        "message": "Fuldmagt Giver not found by given Id"
+                    })
+                }
+
+                fuldmagtData.fuldmagtGiverName = fuldmagtGiver.name.firstName + " " + fuldmagtGiver.name.lastName;
+                fuldmagtData.fuldmagtGiverPhone = fuldmagtGiver.phone,
+                fuldmagtData.fuldmagtGiverDOB = fuldmagtGiver.dateOfBirth,
+                fuldmagtData.fuldmagtGiverEmail = fuldmagtGiver.email
+            }
+
+            let agent = await User.findById(req.user);
+
+            if(fuldmagtData.accountType == "user"){
+                fuldmagtData.agentId = agent._id;
+                fuldmagtData.agentName = agent.name.firstName + " " + agent.name.lastName;
+                fuldmagtData.agentDOB = agent.dateOfBirth;
+                fuldmagtData.agentEmail = agent.email;
+                fuldmagtData.agentPhone = agent.phone
+            }
+            // else if(fuldmagtData.accountType == "company"){
+            //     if(!req.company)
+            //         return res.status(400).send({
+            //             success: false,
+            //             message: "Company is not registered on user"
+            //         })
+                
+            //     let company = await Company.findById(req.company);
+            //     fuldmagtData.fuldmagtGiverId = company._id;
+            //     fuldmagtData.fuldmagtGiverName = company.companyName;
+            // }
+            
+            let fuldmagtRequest = new FuldmagtRequest(fuldmagtData);
+
+            await fuldmagtRequest.save();
+
+            //fuldmagtServices.notifyFuldmagtCreation(fuldmagt, agent)
+
+            return res.status(200).send({
+                success: true,
+                message: "fuldmagt has been added successfully",
+                data: {
+                    fuldmagtRequest
+                }
+            })
+        }
+        catch(err){
+            return res.status(500).send({
+                success: false,
+                message: err.message
+            });
+        }
     },
     async revokeFuldmagt(req, res, next){
         try{
@@ -357,17 +489,25 @@ const fuldmagtController = {
             });
         }
     },
+    async createFuldmagtRequest(req, res, next){
+
+    },
     async getUserfuldmagts(req, res, next){
         try{
             let userId = req.user;
             let objectIdUserId = new mongoose.Types.ObjectId(userId);
+            let orFilter = [
+                { fuldmagtGiverId: objectIdUserId },
+                { agentId: objectIdUserId }
+            ];
+
+            if(req.company){
+                orFilter.push({fuldmagtGiverId: new mongoose.Types.ObjectId(req.company)})
+            }
             let fuldmagts = await Fuldmagt.aggregate([
                 {
                     $match: {
-                        $or: [
-                            { fuldmagtGiverId: objectIdUserId },
-                            { agentId: objectIdUserId }
-                        ]
+                        $or: orFilter
                     }
                 },
                 {
@@ -384,16 +524,46 @@ const fuldmagtController = {
                                     ]
                                 }
                             ]
+                        },
+                        status: {
+                            $cond:[
+                                {$or: [{$eq: ["$fuldmagtGiverId", objectIdUserId]}, {$eq: ["$fuldmagtGiverId", new mongoose.Types.ObjectId(req.company)]}]},
+                                "sent",
+                                "received"
+                            ]
                         }
                     }
                 },
                 { $sort: { createdAt: -1 } } // Sort by createdAt in descending order
             ]);
 
+            let fuldmagtRequests = await FuldmagtRequest.aggregate([
+                {
+                    $match: {
+                        $or: orFilter
+                    }
+                },
+                {
+                    $addFields: {
+                        validity: "request",
+                        status: {
+                            $cond:[
+                                {$or: [{$eq: ["$fuldmagtGiverId", objectIdUserId]}, {$eq: ["$fuldmagtGiverId", new mongoose.Types.ObjectId(req.company)]}]},
+                                "received_request",
+                                "sent_request"
+                            ]
+                        }
+                    }
+                },
+                { $sort: { createdAt: -1 } } // Sort by createdAt in descending order
+            ]);
+
+            let allFuldmagts = [...fuldmagts, ...fuldmagtRequests]
+
             return res.status(200).send({
                 "success": true,
                 "data": {
-                    fuldmagts
+                    fuldmagts: allFuldmagts
                 }
             })
         }
