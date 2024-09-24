@@ -13,6 +13,7 @@ fuldmagtRouter.post("/createFuldmagt",
     authGuard,
     async (req, res, next)=>{
         try{
+            console.log(req.body);
             if(req.files["signature"] && req.files["signature"][0]){
                 let signatureFileObj = req.files["signature"][0];
                 req.signatureUrl = await uploadFileObjectToFirebase(signatureFileObj, req.user); 

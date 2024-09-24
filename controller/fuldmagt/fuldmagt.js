@@ -162,11 +162,11 @@ const fuldmagtController = {
             }
             if(req.postImageUrl)
                 fuldmagtData.postImage = req.postImageUrl;
-            let fuldmagtGiverId = req.body.agentId;
+            let fuldmagtGiverId = req.body.fuldmagtGiverId;
             let fuldmagtGiver = null;
             if(fuldmagtGiverId){
                 fuldmagtGiver = await User.findById(fuldmagtGiverId);
-
+                console.log(fuldmagtGiver);
                 if(!fuldmagtGiver){
                     return res.status(404).send({
                         "success": false,
@@ -200,7 +200,7 @@ const fuldmagtController = {
             //     fuldmagtData.fuldmagtGiverId = company._id;
             //     fuldmagtData.fuldmagtGiverName = company.companyName;
             // }
-            
+            console.log(fuldmagtData);
             let fuldmagtRequest = new FuldmagtRequest(fuldmagtData);
 
             await fuldmagtRequest.save();
