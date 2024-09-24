@@ -218,7 +218,9 @@ const userServices = {
                     $addFields: {
                         name: {$concat: ["$name.firstName", " ", "$name.lastName"]}
                     }
-                }
+                },
+                { $unset: [ "pin", "refreshTokens"] }
+
             ]
         );
         console.log(users);
