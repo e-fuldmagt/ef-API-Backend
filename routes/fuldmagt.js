@@ -2,29 +2,12 @@ const express = require("express");
 const { upload, uploadFileObjectToFirebase } = require("../services/Firebase_SignStorage");
 const authGuard = require("../middleware/authGuard.middleware");
 const fuldmagtController = require("../controller/fuldmagt/fuldmagt");
+const { decode64FilesMiddleware } = require("../middleware/decode64.middleware");
 
 const fuldmagtRouter = express.Router();
-function decodeBase64(req, res, next) {
-    if (req.body.signature) {
-        const base64Data = req.body.signature.replace(/^data:image\/png;base64,/, "");
-        const buffer = Buffer.from(base64Data, 'base64');
-        delete req.body.signature;
-        req.files = {
-            ...req.files,
-            signature: [{ buffer, originalname: 'signature.png', mimetype: 'image/png' }]
-        };
-    }
-    if(req.body.postImage){
-        const base64Data = req.body.postImage.replace(/^data:image\/png;base64,/, "");
-        const buffer = Buffer.from(base64Data, 'base64');
-        delete req.body.postImage;
-        req.files = {
-            ...req.files,
-            postImage: [{ buffer, originalname: 'postImage.png', mimetype: 'image/png' }]
-        };
-    }
-    next();
-};
+
+decode64FilesMiddleware
+
 
 fuldmagtRouter.post("/createFuldmagt",
     upload.fields([
@@ -32,7 +15,7 @@ fuldmagtRouter.post("/createFuldmagt",
         { name: 'signature', maxCount: 1 }   // Second field for the second image
     ]),
     authGuard,
-    decodeBase64,
+    decode64FilesMiddleware(["postImage", "signature"]),
     async (req, res, next)=>{
         try{
             if(req.files["signature"] && req.files["signature"][0]){
@@ -62,7 +45,7 @@ fuldmagtRouter.post("/requestFuldmagt",
         { name: 'postImage', maxCount: 1 },  // First field for the first image
     ]),
     authGuard,
-    decodeBase64,
+    decode64FilesMiddleware(["postImage"]),
     async (req, res, next)=>{
         try{
             if(req.files["postImage"] && req.files["postImage"][0]){
@@ -86,7 +69,7 @@ fuldmagtRouter.post('/approveFuldmagtRequest/:id',
         { name: 'signature', maxCount: 1 }   // Second field for the second image
     ]),
     authGuard,
-    decodeBase64,
+    decode64FilesMiddleware(["signature"]),
     async (req, res, next)=>{
         try{
             if(req.files["signature"] && req.files["signature"][0]){
@@ -115,7 +98,7 @@ fuldmagtRouter.put('/updateFuldmagt/:id',
         { name: 'signature', maxCount: 1 }   // Second field for the second image
     ]),
     authGuard,
-    decodeBase64,
+    decode64FilesMiddleware(["postImage", "signature"]),
     async (req, res, next)=>{
         try{
             if(req.files["signature"] && req.files["signature"][0]){

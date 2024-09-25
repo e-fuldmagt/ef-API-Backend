@@ -10,6 +10,7 @@ const {upload, uploadFileToFirebase} = require("../services/Firebase_SignStorage
 const User = require('../models/user');
 const authGuard = require("../middleware/authGuard.middleware");
 const notificationController = require("../controller/notifications/notifications");
+const { decode64FileMiddleware } = require("../middleware/decode64.middleware");
 const userRouter = express.Router();
 
 //User Sign up Functionality//
@@ -29,7 +30,7 @@ userRouter.put("/setPassword/", authGuard, userController.setPassword);
 userRouter.put("/updateInfo", authGuard, userController.updateUser);
 userRouter.put("/updateEmail", authGuard, userOtpController.verifyUpdateEmailOtp);
 userRouter.put("/updatePhoneNumber", authGuard, userOtpController.verifyUpdatePhoneNumberOtp)
-userRouter.put('/uploadSignature/', upload.single('file'), authGuard, async (req, res, next) => {
+userRouter.put('/uploadSignature/', upload.single('file'), authGuard, decode64FileMiddleware('file'),  async (req, res, next) => {
     try {
         const id = req.user; // Extract id from request parameters
         await uploadFileToFirebase(User, id)(req, res, next); // Pass id to uploadFileToFirebase function
