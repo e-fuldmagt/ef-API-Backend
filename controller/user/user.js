@@ -238,8 +238,8 @@ const userController = {
         // Find the user(s) matching the query
         let user  = await User.findById(id);
         let company = null;
-        if(user){
-          company = await Company.findOne({user : user._id });
+        if(user.company){
+          company = await Company.findById(user.company);
         }
 
         // Handle the case where no user is found

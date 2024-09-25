@@ -78,7 +78,12 @@ const userSchema = new Schema({
     type: [String],
     default: [],
     required: true
-  } 
+  },
+  company: {
+    type: Schema.Types.ObjectId,
+    ref: "company",
+    default: null
+  }
 });
 
 const User =  mongoose.model("user", userSchema, "users");

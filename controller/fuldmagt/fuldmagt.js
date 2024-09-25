@@ -100,7 +100,13 @@ const fuldmagtController = {
                     success:false,
                     message: "fuldmagt request not found with given id"
                 });
-
+            
+            if(!fuldmagtRequest.fuldmagtGiverId){
+                return res.status(401).send({
+                    success:false,
+                    message: "you don't have access to this fuldmagt"
+                })
+            }
             if(fuldmagtRequest.fuldmagtGiverId != req.user && fuldmagtRequest.fuldmagtGiverId != req.company){
                 return res.status(401).send({
                     success: false,
@@ -112,15 +118,18 @@ const fuldmagtController = {
                 title: fuldmagtRequest.title,
                 postImage: fuldmagtRequest.postImage,
                 accountType: fuldmagtRequest.fuldmagtGiverId == req.user? "user" : "company",
-                fuldmagtGiverId: fuldmagtGiverId,
-                fuldmagtGiverName: fuldmagtGiverName,
-                agentId: agentId,
-                agentName: agentName,
-                agentDOB: agentDOB,
-                agentEmail:agentEmail,
-                agentPhone: agentPhone,
-                signature: req.signatureUrl
+                fuldmagtGiverId: fuldmagtRequest.fuldmagtGiverId,
+                fuldmagtGiverName: fuldmagtRequest.fuldmagtGiverName,
+                agentId: fuldmagtRequest.agentId,
+                agentName: fuldmagtRequest.agentName,
+                agentDOB: fuldmagtRequest.agentDOB,
+                agentEmail: fuldmagtRequest.agentEmail,
+                agentPhone: fuldmagtRequest.agentPhone,
+                signature: req.signatureUrl,
+                expiry: fuldmagtRequest.expiry
             }
+
+            console.log(fuldmagtData)
 
             let fuldmagt = new Fuldmagt(fuldmagtData);
             
@@ -561,6 +570,43 @@ const fuldmagtController = {
                 "success": true,
                 "data": {
                     fuldmagts: allFuldmagts
+                }
+            })
+        }
+        catch(err){
+            return res.status(500).send({
+                success: false,
+                message: err.message
+            });
+        }
+    },
+    async getSpecificFuldmagtRequest(req, res, next){
+        try{
+            let fuldmagtId = req.params.id;
+            let userId = req.user;
+            let companyId = req.company;
+            let fuldmagtRequest = await FuldmagtRequest.findById(fuldmagtId);
+
+            if(!fuldmagtRequest){
+                return res.status(404).send({
+                    message: "fuldmagt with id not found"
+                });
+            }
+            
+            if(fuldmagtRequest.fuldmagtGiverId != userId && fuldmagtRequest.agentId != userId && fuldmagtRequest.fuldmagtGiverId != companyId){
+                return res.status(401).send({
+                    "message": "user doesn't have access to given fuldmagt request"
+                });
+            }
+
+            fuldmagtRequest = fuldmagtRequest.toObject();
+
+            fuldmagtRequest.satus = (fuldmagtRequest.agentId != userId)?"received_request": "sent_request";
+            
+            return res.status(200).send({
+                message: "fuldmagt request fetched successfully",
+                data:{
+                    fuldmagtRequest
                 }
             })
         }
