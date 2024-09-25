@@ -22,10 +22,7 @@ function decode64FileMiddleware(key){
             const base64Data = req.body[key].replace(/^data:image\/png;base64,/, "");
             const buffer = Buffer.from(base64Data, 'base64');
             delete req.body[key];
-            req.files = {
-                ...req.files,
-                [key]: [{ buffer, originalname: key+'.png', mimetype: 'image/png' }]
-            };
+            req.file = { buffer, originalname: key+'.png', mimetype: 'image/png' }
         }
         next();
     }
