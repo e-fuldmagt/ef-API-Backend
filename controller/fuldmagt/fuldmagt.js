@@ -38,6 +38,10 @@ const fuldmagtController = {
 
             await fuldmagt.save();
 
+            let agent = await User.findById(fuldmagt.agentId);
+
+            fuldmagtServices.notifyFuldmagtCreation(fuldmagt, agent);
+
             return res.status(200).send({
                 "message": "fuldmagt has been issued again successfully",
                 "data": {
@@ -170,12 +174,14 @@ const fuldmagtController = {
                 expiry: fuldmagtRequest.expiry
             }
 
-            console.log(fuldmagtData)
+            let agent = await User.findById(fuldmagtRequest.agentId);
 
             let fuldmagt = new Fuldmagt(fuldmagtData);
             
             await fuldmagt.save();
             await fuldmagtRequest.delete();
+
+            fuldmagtServices.notifyFuldmagtCreation(fuldmagt, agent);
 
             return res.status(400).send({
                 success:true,
@@ -250,12 +256,13 @@ const fuldmagtController = {
             //     fuldmagtData.fuldmagtGiverId = company._id;
             //     fuldmagtData.fuldmagtGiverName = company.companyName;
             // }
-            console.log(fuldmagtData);
+            
             let fuldmagtRequest = new FuldmagtRequest(fuldmagtData);
 
             await fuldmagtRequest.save();
 
             //fuldmagtServices.notifyFuldmagtCreation(fuldmagt, agent)
+            fuldmagtServices.notifyFuldmagtRequest(fuldmagtRequest, fuldmagtGiver);
 
             return res.status(200).send({
                 success: true,

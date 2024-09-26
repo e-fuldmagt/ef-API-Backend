@@ -312,13 +312,13 @@ const fuldmagtServices = {
                     fuldmagtId: fuldmagt._id + ""
                 },
                 imageUrl: fuldmagt.postImage,
-                recipient: agent._id
+                recipient: fuldmagtGiver._id
             }
 
             notificationServices.sendNotification(fuldmagtGiverNtofication);
         }
     },
-    async notifyFuldmagtCreation(fuldmagt, agentEmail, agent){
+    async notifyFuldmagtCreation(fuldmagt, agent){
         let fuldmagtToken = jwt.sign({fuldmagtId: fuldmagt._id}, process.env.FULDMAGT_TOKEN)
 
         
