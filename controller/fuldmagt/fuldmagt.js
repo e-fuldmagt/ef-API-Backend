@@ -11,6 +11,47 @@ const FuldmagtRequest = require("../../models/fuldmagtRequests");
 
 
 const fuldmagtController = {
+    async issueAgain(req, res, next){
+        try{
+            let fuldmagtId = req.params.id;
+
+            let fuldmagt = await Fuldmagt.findById(fuldmagtId);
+
+            if(!fuldmagt){
+                return res.status(404).send({
+                    "message": "Fuldmagt not found"
+                })
+            }
+
+            if(fuldmagt.fuldmagtGiverId != req.user.id){
+                return res.status(401).send({
+                    "message": "You are not fulmagt Owner"
+                })
+            }
+            //As Fuldmagt is getting updated, so it won't be revoked anymore and it is also not acknowledged//
+            fuldmagt.revoked = false;
+            fuldmagt.revokedDate = null;
+            fuldmagt.acknowledged = false;
+            fuldmagt.acknowledgedDate = null;
+            fuldmagt.createdAt = new Date();
+            fuldmagt.expiry = new Date(fuldmagt.createdAt.getTime() + 3 * 60 * 60 * 1000); 
+
+            await fuldmagt.save();
+
+            return res.status(200).send({
+                "message": "fuldmagt has been issued again successfully",
+                "data": {
+                    fuldmagt
+                }
+            })
+
+        }catch(err){
+            return res.status(500).send({
+                success: false,
+                message: err.message
+            });
+        }
+    },
     async createFuldmagt(req, res, next){
         try{
             let validate = verifyCreateFuldmagt.validate(req.body);

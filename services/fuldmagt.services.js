@@ -199,6 +199,9 @@ const createFuldmagtEmailTemplate = (fuldmagt)=>{
 }
 
 const fuldmagtServices = {
+    async notifyFuldmagtRequest(fuldmagt, fuldmagtGiver){
+        
+    },
     async notifyFuldmagtCreation(fuldmagt, agent){
         let fuldmagtToken = jwt.sign({fuldmagtId: fuldmagt._id}, process.env.FULDMAGT_TOKEN)
 
