@@ -39,12 +39,12 @@ userRouter.put('/uploadSignature/', upload.single('file'), authGuard, decode64Fi
         res.status(500).send({ success: false, message: 'Failed to handle file upload' });
     }
 }, userSignatureController.addSignature);
+userRouter.get("/getSignature/:id", userSignatureController.getSignature)
 
 //User Notifications//
 userRouter.put("/add-notifications-token/", authGuard, notificationController.addNotificationToken);
 userRouter.get("/notifications", authGuard, notificationController.getUserNotifications)
-userRouter.get("/getSignature/:id", userSignatureController.getSignature)
-
-
+userRouter.put("/setActivityNotification", authGuard, notificationController.setActivityNotification)
+userRouter.get("/notificationSettings", authGuard, notificationController.getNotificationSettings)
 
 module.exports = userRouter;

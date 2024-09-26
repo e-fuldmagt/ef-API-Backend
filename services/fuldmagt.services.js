@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken")
 const notificationServices = require("./notification.services")
 const { sendEmail } = require("./MailService")
 const mongoose = require("mongoose")
+const NotificationSetting = require("../models/notificationSettings")
 
 const revokedFuldmagtEmailTemplate = (fuldmagt)=>{
     return `
@@ -297,73 +298,91 @@ const createFuldmagtRequestTemplate = (fuldmagtRequest) => {
 
 const fuldmagtServices = {
     async notifyFuldmagtRequest(fuldmagtRequest, fuldmagtGiver){
-        let emailSubject = fuldmagtRequest.agentName + " has requested the fuldmagt " + fuldmagtRequest.title;
-        await sendEmail(fuldmagtRequest.fuldmagtGiverEmail, emailSubject, createFuldmagtRequestTemplate(fuldmagtRequest))
-        
-
-        if(fuldmagtGiver) //If Agent Exists, Send Notification to App as well
+        if(!fuldmagtGiver){
+            let emailSubject = fuldmagtRequest.agentName + " has requested the fuldmagt " + fuldmagtRequest.title;
+            await sendEmail(fuldmagtRequest.fuldmagtGiverEmail, emailSubject, createFuldmagtRequestTemplate(fuldmagtRequest))
+        }
+        else //If Agent Exists, Send Notification to App as well
         { 
+            let notificationSetting = await NotificationSetting.findOne({userId: fuldmagtGiver._id})
             
-            fuldmagtGiverNtofication = {
-                title: `${fuldmagtRequest.title} Fuldmagt Signed`,
-                body: fuldmagtRequest.agentName + " has requested the fuldmagt " + fuldmagtRequest.title,
-                data: {
-                    actionType: "request_fuldmagt",
-                    fuldmagtRequestId: fuldmagtRequest._id + ""
-                },
-                imageUrl: fuldmagtRequest.postImage,
-                recipient: fuldmagtGiver._id
+            if(notificationSetting.activityNotification.pushNotification){
+                fuldmagtGiverNtofication = {
+                    title: `${fuldmagtRequest.title} Fuldmagt Request`,
+                    body: fuldmagtRequest.agentName + " has requested the fuldmagt " + fuldmagtRequest.title,
+                    data: {
+                        actionType: "request_fuldmagt",
+                        fuldmagtRequestId: fuldmagtRequest._id + ""
+                    },
+                    imageUrl: fuldmagtRequest.postImage,
+                    recipient: fuldmagtGiver._id
+                }
+    
+                notificationServices.sendNotification(fuldmagtGiverNtofication);
             }
-
-            notificationServices.sendNotification(fuldmagtGiverNtofication);
+            if(notificationSetting.activityNotification.email){
+                let emailSubject = fuldmagtRequest.agentName + " has requested the fuldmagt " + fuldmagtRequest.title;
+                await sendEmail(fuldmagtGiver.email, emailSubject, createFuldmagtRequestTemplate(fuldmagtRequest))
+            }
         }
     },
     async notifyFuldmagtCreation(fuldmagt, agent){
-        let fuldmagtToken = jwt.sign({fuldmagtId: fuldmagt._id}, process.env.FULDMAGT_TOKEN)
-
-        
-        let emailSubject = fuldmagt.fuldmagtGiverName + " has signed the fuldmagt " + fuldmagt.title;
-        await sendEmail(fuldmagt.agentEmail, emailSubject, createFuldmagtEmailTemplate(fuldmagt))
-        
-
-        if(agent) //If Agent Exists, Send Notification to App as well
-        { 
-            
-            agentNotification = {
-                title: `${fuldmagt.title} Fuldmagt Signed`,
-                body: fuldmagt.fuldmagtGiverName + " has signed the fuldmagt " + fuldmagt.title,
-                data: {
-                    actionType: "create_fuldmagt",
-                    fuldmagtId: fuldmagt._id + ""
-                },
-                imageUrl: fuldmagt.postImage,
-                recipient: agent._id
-            }
-
-            notificationServices.sendNotification(agentNotification);
+        if(!agent){
+            let emailSubject = fuldmagt.fuldmagtGiverName + " has signed the fuldmagt " + fuldmagt.title;
+            await sendEmail(fuldmagt.agentEmail, emailSubject, createFuldmagtEmailTemplate(fuldmagt))
         }
+        else //If Agent Exists, Send Notification to App as well
+        { 
+            let notificationSetting = await NotificationSetting.findOne({userId: agent._id})
+            
+            if(notificationSetting.activityNotification.pushNotification){
+                agentNotification = {
+                    title: `${fuldmagt.title} Fuldmagt Signed`,
+                    body: fuldmagt.fuldmagtGiverName + " has signed the fuldmagt " + fuldmagt.title,
+                    data: {
+                        actionType: "create_fuldmagt",
+                        fuldmagtId: fuldmagt._id + ""
+                    },
+                    imageUrl: fuldmagt.postImage,
+                    recipient: agent._id
+                }
+    
+                notificationServices.sendNotification(agentNotification);
+            }
+            if(notificationSetting.activityNotification.email){
+                let emailSubject = fuldmagt.fuldmagtGiverName + " has signed the fuldmagt " + fuldmagt.title;
+                await sendEmail(agent.email, emailSubject, createFuldmagtEmailTemplate(fuldmagt))
+            }
+        }
+        
     },
     async notifyFuldmagtRevoke(fuldmagt){
-
-        let emailSubject = fuldmagt.fuldmagtGiverName + " has revoked the fuldmagt " + fuldmagt.title;
-        await sendEmail(fuldmagt.agentEmail, emailSubject, revokedFuldmagtEmailTemplate(fuldmagt))
-        
-
-        if(fuldmagt.agentId) //If Agent Exists, Send Notification to App as well
+        if(!fuldmagt.agentId){
+            let emailSubject = fuldmagt.fuldmagtGiverName + " has revoked the fuldmagt " + fuldmagt.title;
+            await sendEmail(fuldmagt.agentEmail, emailSubject, revokedFuldmagtEmailTemplate(fuldmagt))
+        }
+        else //If Agent Exists, Send Notification to App as well
         { 
+            let notificationSetting = await NotificationSetting.findOne({userId: fuldmagt.agentId})
             
-            agentNotification = {
-                title: `${fuldmagt.title} Fuldmagt Signed`,
-                body: fuldmagt.fuldmagtGiverName + " has revoked the fuldmagt " + fuldmagt.title,
-                data: {
-                    actionType: "revoke_fuldmagt",
-                    fuldmagtId: fuldmagt._id + ""
-                },
-                imageUrl: fuldmagt.postImage,
-                recipient: fuldmagt.agentId
+            if(notificationSetting.activityNotification.pushNotification){
+                agentNotification = {
+                    title: `${fuldmagt.title} Fuldmagt Revoked`,
+                    body: fuldmagt.fuldmagtGiverName + " has revoked the fuldmagt " + fuldmagt.title,
+                    data: {
+                        actionType: "revoke_fuldmagt",
+                        fuldmagtId: fuldmagt._id + ""
+                    },
+                    imageUrl: fuldmagt.postImage,
+                    recipient: fuldmagt.agentId
+                }
+    
+                notificationServices.sendNotification(agentNotification);
             }
-
-            notificationServices.sendNotification(agentNotification);
+            if(notificationSetting.activityNotification.email){
+                let emailSubject = fuldmagt.fuldmagtGiverName + " has revoked the fuldmagt " + fuldmagt.title;
+                await sendEmail(fuldmagt.agentEmail, emailSubject, revokedFuldmagtEmailTemplate(fuldmagt))
+            }
         }
     },
     async notifyFuldmagtUpdate(){

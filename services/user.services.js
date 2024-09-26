@@ -5,6 +5,7 @@ var CryptoJS = require("crypto-js");
 const User = require("../models/user");
 const bcryptjs = require("bcryptjs");
 const Company = require("../models/company");
+const NotificationSetting = require("../models/notificationSettings");
 
 
 
@@ -74,7 +75,7 @@ const userServices = {
         let newUser = new User(user);
 
         await newUser.save();
-
+        await NotificationSetting.create({userId: newUser._id});
         let createPasswordToken = jwt.sign({userId: newUser._id}, process.env.CREATE_PASSWORD_TOKEN);
 
         return {createPasswordToken, user:{...newUser.toObject(), pin: undefined}};

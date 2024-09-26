@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Notification = require("../../models/notification");
 const User = require("../../models/user");
+const NotificationSetting = require("../../models/notificationSettings");
 
 
 const notificationController = {
@@ -120,6 +121,66 @@ const notificationController = {
             success: false,
             message: err.message
         });
+    }
+  },
+  async getNotificationSettings(req, res, next){
+    try{
+      
+      let notificationSetting = await NotificationSetting.findOne({userId: req.user});
+
+      if(!notificationSetting)
+      {
+        return res.status(404).send({
+          message: "Notification Settings not available for given user."
+        })
+      }
+
+      return res.status(200).send({
+        "message": "Notifications Setting for user",
+        data: {
+          notificationSetting
+        }
+      })
+    }
+    catch(err){
+      return res.status(500).send({
+        success:false,
+        message: err.message
+      })
+    }
+  },
+  async setActivityNotification(req, res, next){
+    try{
+      let {email, pushNotification} = req.body;
+
+      let notificationSetting = await NotificationSetting.findOne({userId: req.user});
+
+      if(!notificationSetting)
+      {
+        return res.status(404).send({
+          message: "Notification Settings not available for given user."
+        })
+      }
+
+      notificationSetting.activityNotification = {
+        email: email,
+        pushNotification: pushNotification
+      };
+
+      await notificationSetting.save();
+
+      return res.status(200).send({
+        "message": "Notifcations has been updated",
+        data: {
+          notificationSetting
+        }
+      })
+    }
+    catch(err){
+      return res.status(500).send({
+        success:false,
+        message: err.message
+      })
     }
   }
 };
