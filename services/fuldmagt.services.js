@@ -309,9 +309,9 @@ const fuldmagtServices = {
                 body: fuldmagtRequest.agentName + " has requested the fuldmagt " + fuldmagtRequest.title,
                 data: {
                     actionType: "request_fuldmagt",
-                    fuldmagtId: fuldmagt._id + ""
+                    fuldmagtRequestId: fuldmagtRequest._id + ""
                 },
-                imageUrl: fuldmagt.postImage,
+                imageUrl: fuldmagtRequest.postImage,
                 recipient: fuldmagtGiver._id
             }
 

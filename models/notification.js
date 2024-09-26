@@ -6,15 +6,22 @@ const Schema = mongoose.Schema;
 const actionDataSchema = new mongoose.Schema({
   actionType: {
     type: String,
-    enum: ['default', 'create_fuldmagt', 'update_fuldmagt', 'revoke_fuldmagt', 'acknowledge_fuldmagt'],
+    enum: ['default', 'create_fuldmagt', 'update_fuldmagt', 'revoke_fuldmagt', 'acknowledge_fuldmagt', 'request_fuldmagt'],
     required: true,
     default: "default"
   },
   fuldmagtId: {
     type: Schema.Types.ObjectId, 
-    ref: "Package",
+    ref: "Fuldmagt",
     required: function () {
       return this.actionType === 'create_fuldmagt' || this.actionType === 'update_fuldmagt' || this.actionType === 'revoke_fuldmagt' || this.actionType === 'acknowledge_fuldmagt';
+    },
+  },
+  fuldmagtRequestId: {
+    type: Schema.Types.ObjectId, 
+    ref: "FuldmagtRequest",
+    required: function () {
+      return this.actionType === 'request_fuldmagt';
     },
   }
 }, { _id: false });
