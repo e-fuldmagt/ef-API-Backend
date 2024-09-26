@@ -334,7 +334,7 @@ const fuldmagtServices = {
         else //If Agent Exists, Send Notification to App as well
         { 
             let notificationSetting = await NotificationSetting.findOne({userId: agent._id})
-            
+            console.log(notificationSetting);
             if(notificationSetting.activityNotification.pushNotification){
                 agentNotification = {
                     title: `${fuldmagt.title} Fuldmagt Signed`,
