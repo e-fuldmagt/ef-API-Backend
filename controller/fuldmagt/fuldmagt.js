@@ -23,7 +23,7 @@ const fuldmagtController = {
                 })
             }
 
-            if(fuldmagt.fuldmagtGiverId != req.user.id){
+            if(fuldmagt.fuldmagtGiverId != req.user){
                 return res.status(401).send({
                     "message": "You are not fulmagt Owner"
                 })

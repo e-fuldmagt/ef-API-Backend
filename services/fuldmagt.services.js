@@ -198,11 +198,127 @@ const createFuldmagtEmailTemplate = (fuldmagt)=>{
     `
 }
 
+const createFuldmagtRequestTemplate = (fuldmagtRequest) => {
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>E-Fuldmagt Request</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .content p {
+            margin-bottom: 15px;
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .button {
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            font-size: 14px;
+            color: #888888;
+            margin-top: 20px;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+        <div class="header">Request for E-Fuldmagt</div>
+        <div class="content">
+            <p>Dear ${fuldmagtRequest.fuldmagtGiverName},</p>
+            <p>
+            You have received a request to sign a digital power of attorney (E-Fuldmagt)
+            granting authority to ${fuldmagtRequest.agentName} to act on your behalf for the following matters:
+            </p>
+
+            <ul>
+            <li><strong>Fuldmagt Title:</strong> ${fuldmagtRequest.title}</li>
+            <li><strong>Authorized Actions:</strong> Package Collection</li>
+            <li><strong>Date of Request:</strong> ${fuldmagtRequest.createdAt}</li>
+            </ul>
+
+            <p>
+            To review the details and sign the E-Fuldmagt, please click on the button below.
+            </p>
+
+            <div class="button-container">
+            <a href="[Link to Sign Fuldmagt]" class="button">Sign Fuldmagt</a>
+            </div>
+
+            <p>
+            If you have any questions or need further information, feel free to contact us.
+            </p>
+        </div>
+
+        <div class="footer">
+            Best regards,<br />
+            e-Fuldmagt (digital Power of Attorney)
+        </div>
+        </div>
+    </body>
+    </html>
+    `;
+};
+
 const fuldmagtServices = {
-    async notifyFuldmagtRequest(fuldmagt, fuldmagtGiver){
+    async notifyFuldmagtRequest(fuldmagtRequest, fuldmagtGiver){
+        let emailSubject = fuldmagtRequest.agentName + " has requested the fuldmagt " + fuldmagtRequest.title;
+        await sendEmail(fuldmagtRequest.fuldmagtGiverEmail, emailSubject, createFuldmagtRequestTemplate(fuldmagtRequest))
         
+
+        if(fuldmagtGiver) //If Agent Exists, Send Notification to App as well
+        { 
+            
+            fuldmagtGiverNtofication = {
+                title: `${fuldmagtRequest.title} Fuldmagt Signed`,
+                body: fuldmagtRequest.agentName + " has requested the fuldmagt " + fuldmagtRequest.title,
+                data: {
+                    actionType: "request_fuldmagt",
+                    fuldmagtId: fuldmagt._id + ""
+                },
+                imageUrl: fuldmagt.postImage,
+                recipient: agent._id
+            }
+
+            notificationServices.sendNotification(fuldmagtGiverNtofication);
+        }
     },
-    async notifyFuldmagtCreation(fuldmagt, agent){
+    async notifyFuldmagtCreation(fuldmagt, agentEmail, agent){
         let fuldmagtToken = jwt.sign({fuldmagtId: fuldmagt._id}, process.env.FULDMAGT_TOKEN)
 
         
