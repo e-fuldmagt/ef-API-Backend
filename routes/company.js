@@ -15,6 +15,8 @@ const companyRouter = express.Router();
 // routes
 companyRouter.post("/verifyCompanyCredentials", authGuard, companyController.verifyCompanyCredentials);
 companyRouter.post("/register", authGuard, companyController.addCompany);
+companyRouter.post("/registerUnverified", authGuard, companyController.addCompanyUnverified);
+companyRouter.put("/assignCompany/:id", authGuard, companyController.assignCompany);
 
 companyRouter.get("/getCompany/:id", companyController.getSpecificCompany);
 

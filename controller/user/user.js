@@ -688,7 +688,7 @@ async loginWithPin(req, res) {
       await user.save();
 
       //Check if user has a company//
-      let company  = await Company.findOne({user: user._id})
+      let company  = await Company.findById(user.company)
 
       let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "15m"});
       return res.status(200).send({
@@ -723,7 +723,7 @@ async loginWithPin(req, res) {
 
       let userId = refreshTokenPayload.userId;
 
-      let user = await User.findOne({_id: userId, deviceId});
+      let user = await User.findOne({_id: userId, deviceId}).populate("company");
       
 
       if(!user){
@@ -762,14 +762,11 @@ async loginWithPin(req, res) {
         })
       }
 
-      //Check if user has a company//
-      let company  = await Company.findOne({user: user._id})
-
-      let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "15m"});
+      let authToken = jwt.sign({userId: user._id, companyId: user.company?user.company._id:null}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "15m"});
 
       return res.status(200).send({
         success: "true",
-        data: {authToken, refreshToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null}
+        data: {authToken, refreshToken, user:{...user.toObject(), pin: undefined, company: undefined}, company: user.company}
       }
       ) ;
     }

@@ -104,7 +104,7 @@ const userServices = {
         await user.save();
 
         //Check if user has a company//
-        let company  = await Company.findOne({user: user._id})
+        let company  = await Company.findById(user.company)
 
         let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN);
 
@@ -127,7 +127,7 @@ const userServices = {
         }
 
         //Check if user has a company//
-        let company  = await Company.findOne({user: user._id})
+        let company  = await Company.findById(user.company)
 
         let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN);
 

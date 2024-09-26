@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 const companySchema = new Schema({
-  user: {
+  createdBy: {
     type: mongoose.Schema.ObjectId,
     required: true,
     unique: true,
