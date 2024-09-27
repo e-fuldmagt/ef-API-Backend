@@ -81,7 +81,7 @@ const userServices = {
         return {createPasswordToken, user:{...newUser.toObject(), pin: undefined}};
     },
 
-    async createPassword(createPasswordToken, pin){
+    async createPassword(createPasswordToken, deviceId, pin){
         let {userId} = jwt.verify(createPasswordToken, process.env.CREATE_PASSWORD_TOKEN);
         
         let user = await User.findById(userId);
@@ -101,6 +101,11 @@ const userServices = {
         let encryptedPin = await bcryptjs.hash(pin, salt);
 
         user.pin = encryptedPin;
+        user.deviceId = deviceId;
+
+        let refreshToken = jwt.sign({userId: user._id}, process.env.REFRESH_TOKEN, {expiresIn: "30d"});
+
+        user.refreshTokens.push(refreshToken);
 
         await user.save();
 
@@ -109,7 +114,9 @@ const userServices = {
 
         let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN);
 
-        return {authToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null};
+
+
+        return {authToken, refreshToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null};
     },
     async login(credentials, pin){
         let user = await this.getUserByCredentials(credentials);

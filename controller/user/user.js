@@ -116,9 +116,9 @@ const userController = {
   },
   async createPassword(req, res){
     try{
-      const {createPasswordToken, pin} = req.body;
+      const {createPasswordToken, pin, deviceId} = req.body;
       
-      resBody = await userServices.createPassword(createPasswordToken, pin);
+      resBody = await userServices.createPassword(createPasswordToken, deviceId, pin);
 
       if(!resBody){
         return res.status(400).send({
@@ -771,6 +771,44 @@ async loginWithPin(req, res) {
       ) ;
     }
     catch(e){
+      // Handle any unexpected errors
+      res.status(500).send({
+        success: false,
+        data: { error: e.message },
+      });
+    }
+  },
+  async logout(req, res, next){
+    try{
+      let {deviceId, refreshToken, notificationId} = req.body;
+
+      let user = await User.findById(req.user);
+
+      if(!user){
+        return res.status(404).send({
+          "message": "user doesn't exist with given id"
+        })
+      }
+
+      if(deviceId != undefined && user.deviceId != deviceId){
+        return res.status(404).send({
+          "message": "device Id doesn't match"
+        })
+      }
+
+      if(deviceId != undefined)
+        user.deviceId = null;
+
+      user.refreshTokens = user.refreshTokens.filter((rT)=>rT!=refreshToken);
+      user.notificationIds = user.notificationIds.filter((nId)=>nId!=notificationId);
+      
+      await user.save()
+
+      return res.status(200).send({
+        "message": "user has been logged out successfully"
+      })
+    }
+    catch(err){
       // Handle any unexpected errors
       res.status(500).send({
         success: false,
