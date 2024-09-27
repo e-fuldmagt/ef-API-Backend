@@ -690,7 +690,7 @@ async loginWithPin(req, res) {
       //Check if user has a company//
       let company  = await Company.findById(user.company)
 
-      let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "15m"});
+      let authToken = jwt.sign({userId: user._id, companyId: company?company._id:null}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "1h"});
       return res.status(200).send({
         success: "true",
         data: {authToken, refreshToken, user:{...user.toObject(), pin: undefined}, company: company?company.toObject():null}
@@ -762,7 +762,7 @@ async loginWithPin(req, res) {
         })
       }
 
-      let authToken = jwt.sign({userId: user._id, companyId: user.company?user.company._id:null}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "15m"});
+      let authToken = jwt.sign({userId: user._id, companyId: user.company?user.company._id:null}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "1h"});
 
       return res.status(200).send({
         success: "true",
@@ -856,7 +856,7 @@ async loginWithPin(req, res) {
 
       user.refreshTokens.push(newRefreshToken);
 
-      let authToken = jwt.sign({userId: user._id, companyId: companyId}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "15m"});
+      let authToken = jwt.sign({userId: user._id, companyId: companyId}, process.env.AUTHORIZATION_TOKEN, {expiresIn: "1h"});
 
       
       await user.save();
