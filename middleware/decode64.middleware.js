@@ -3,8 +3,11 @@ function decode64FilesMiddleware(keysList){
     return (req, res, next)=>{
         for(let i = 0; i<keysList.length; i++){
             if(req.body[keysList[i]]){
+                
+                console.log(req.body);
                 const base64Data = req.body[keysList[i]].replace(/^data:image\/png;base64,/, "");
                 const buffer = Buffer.from(base64Data, 'base64');
+                console.log("base64", base64Data);
                 delete req.body[keysList[i]];
                 req.files = {
                     ...req.files,

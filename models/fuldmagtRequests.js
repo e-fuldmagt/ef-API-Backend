@@ -59,6 +59,10 @@ const fuldmagtRequestSchema = new Schema({
   expiry: {
     type: Date,
     required: true
+  },
+  createdAt: {
+    type: Date,
+    default: new Date()
   }
 });
 
