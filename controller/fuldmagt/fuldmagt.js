@@ -183,7 +183,7 @@ const fuldmagtController = {
 
             fuldmagtServices.notifyFuldmagtCreation(fuldmagt, agent);
 
-            return res.status(400).send({
+            return res.status(200).send({
                 success:true,
                 message: "Fuldmagt has been created successfully",
                 data: {

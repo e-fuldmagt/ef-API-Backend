@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const Company = require("../../models/company");
 const User = require("../../models/user");
-const companyServices = require("../../services/company.Services");
+const companyServices = require("../../services/company.services");
 const cryptoJs = require("crypto-js");
 
 const companyController = {

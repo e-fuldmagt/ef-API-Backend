@@ -77,6 +77,7 @@ const notificationController = {
   },
   async addNotificationToken(req, res, next){
     try{
+      console.log("notification body", req.body)
         let userId = req.user;
 
         let {notificationId} = req.body;
