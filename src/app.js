@@ -11,10 +11,6 @@ const { sendNotificationByUserId } = require("../services/notification.services"
 
 //Comment update
 
-//Not done 
-
-//done test 2
-
 class App {
   constructor() {
     this.app = express();
