@@ -41,6 +41,28 @@ jobs:
           echo "TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}" >> .env
           echo "TWILIO_PHONE_NUMBER=${{ secrets.TWILIO_PHONE_NUMBER }}" >> .env
           echo "TWILIO_SID=${{ secrets.TWILIO_SID }}" >> .env
+          echo "SIGNUP_TOKEN_SECRET=${{ secrets.SIGNUP_TOKEN_SECRET }}" >> .env
+          echo "OTP_TOKEN_SECRET=${{ secrets.OTP_TOKEN_SECRET }}" >> .env
+          echo "ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> .env
+          echo "CREATE_PASSWORD_TOKEN=${{ secrets.CREATE_PASSWORD_TOKEN }}" >> .env
+          echo "AUTHORIZATION_TOKEN=${{ secrets.AUTHORIZATION_TOKEN }}" >> .env
+          echo "REFRESH_TOKEN=${{ secrets.REFRESH_TOKEN }}" >> .env
+          echo "ADD_COMPANY_TOKEN=${{ secrets.ADD_COMPANY_TOKEN }}" >> .env
+          echo "PACKAGE_TOKEN=${{ secrets.PACKAGE_TOKEN }}" >> .env
+          echo "FULDMAGT_TOKEN=${{ secrets.FULDMAGT_TOKEN }}" >> .env
+          echo "EMAIL_ID=${{ secrets.EMAIL_ID }}" >> .env
+          echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> .env
+          echo "FIRSEBASE_TYPE=${{ secrets.FIRSEBASE_TYPE }}" >> .env
+          echo "FIRSEBASE_PROJECT_ID=${{ secrets.FIRSEBASE_PROJECT_ID }}" >> .env
+          echo "FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}" >> .env
+          echo "FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}" >> .env
+          echo "FIREBASE_AUTH_URI=${{ secrets.FIREBASE_AUTH_URI }}" >> .env
+          echo "FIREBASE_TOKEN_URI=${{ secrets.FIREBASE_TOKEN_URI }}" >> .env
+          echo "FIREBASE_AUTH_PROVIDER_X509_CERT_URL=${{ secrets.FIREBASE_AUTH_PROVIDER_X509_CERT_URL }}" >> .env
+          echo "FIREBASE_CLIENT_X509_CERT_URL=${{ secrets.FIREBASE_CLIENT_X509_CERT_URL }}" >> .env
+          echo "FIREBASE_UNIVERSE_DOMAIN=${{ secrets.FIREBASE_UNIVERSE_DOMAIN }}" >> .env
+          echo "GATEWAY_API_TOKEN=${{ secrets.GATEWAY_API_TOKEN }}" >> .env
+          
 
       - name: rsync deployments
         uses: burnett01/rsync-deployments@6.0.0
