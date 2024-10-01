@@ -70,9 +70,32 @@ const companyController = {
           "message": "Already a company exists at user account"
         })
       }
+      let emailCredentials = {}
+      try{
+        emailCredentials = jwt.verify(emailCredentialsToken, process.env.ADD_COMPANY_TOKEN);
+      }
+      catch(err){
+        if(user.email == emailCredentialsToken){
+          emailCredentials.email = user.email;
+        }
+        else{
+          throw err
+        }
+      }
+      let phoneCredentials = {}
+      try{
+        phoneCredentials = jwt.verify(phoneCredentialsToken, process.env.ADD_COMPANY_TOKEN);
+      }
+      catch(err){
+        if(user.phone.countryCode ==  phoneCredentialsToken.phone.countryCode 
+          && user.phone.number == phoneCredentials.phone.number){
+          phoneCredentials.phone = user.phone;
+        }
+        else{
+          throw err;
+        }
+      }
 
-      let emailCredentials = jwt.verify(emailCredentialsToken, process.env.ADD_COMPANY_TOKEN);
-      let phoneCredentials = jwt.verify(phoneCredentialsToken, process.env.ADD_COMPANY_TOKEN);
       if(!emailCredentials.email)
           return res.status(400).send({
             "success": false,
