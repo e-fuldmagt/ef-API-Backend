@@ -78,21 +78,15 @@ const companyController = {
         if(user.email == emailCredentialsToken){
           emailCredentials.email = user.email;
         }
-        else{
-          throw err
-        }
       }
       let phoneCredentials = {}
       try{
         phoneCredentials = jwt.verify(phoneCredentialsToken, process.env.ADD_COMPANY_TOKEN);
       }
       catch(err){
-        if(user.phone.countryCode ==  phoneCredentialsToken.phone.countryCode 
-          && user.phone.number == phoneCredentials.phone.number){
+        if(user.phone.countryCode ==  phoneCredentialsToken.countryCode 
+          && user.phone.number == phoneCredentialsToken.number){
           phoneCredentials.phone = user.phone;
-        }
-        else{
-          throw err;
         }
       }
 
