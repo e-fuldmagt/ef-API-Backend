@@ -62,7 +62,6 @@ jobs:
           echo "FIREBASE_CLIENT_X509_CERT_URL=${{ secrets.FIREBASE_CLIENT_X509_CERT_URL }}" >> .env
           echo "FIREBASE_UNIVERSE_DOMAIN=${{ secrets.FIREBASE_UNIVERSE_DOMAIN }}" >> .env
           echo "GATEWAY_API_TOKEN=${{ secrets.GATEWAY_API_TOKEN }}" >> .env
-          
 
       - name: rsync deployments
         uses: burnett01/rsync-deployments@6.0.0
