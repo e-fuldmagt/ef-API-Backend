@@ -11,7 +11,7 @@ const packageRouter = require("./package");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.send("hello from server");
+  res.send("e-fuldmagt backend server");
 });
 
 router.use("/user", userRouter);
