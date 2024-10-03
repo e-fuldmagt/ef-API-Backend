@@ -10,6 +10,11 @@ const packageRouter = require("./package");
 
 const router = express.Router();
 
+router.use("*", (req, res, next)=>{
+  console.log("path:", req.baseUrl);
+  next();
+})
+
 router.get("/", (req, res) => {
   res.send("hello from server");
 });
