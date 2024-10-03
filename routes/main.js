@@ -16,7 +16,7 @@ router.use("*", (req, res, next)=>{
 })
 
 router.get("/", (req, res) => {
-  res.send("hello from server");
+  res.send("e-fuldmagt backend server");
 });
 
 router.use("/user", userRouter);
