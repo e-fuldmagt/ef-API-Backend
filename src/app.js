@@ -9,8 +9,6 @@ const path = require("path");
 const { sendMessage } = require("../services/SMSService");
 const { sendNotificationByUserId } = require("../services/notification.services");
 
-//change in firebase//
-
 class App {
   constructor() {
     this.app = express();
