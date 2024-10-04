@@ -2,7 +2,7 @@ const User = require("../../models/user");
 const Company = require("../../models/company");
 const Joi = require("@hapi/joi");
 const Otp = require("../../models/otp");
-const bcrypt = require("bcryptjs");
+const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const otpGenerator = require("otp-generator");
@@ -11,13 +11,35 @@ const mailService = require("../../services/MailService");
 const { userSchema } = require("../../validation/userValidation");
 const { passwordSchema } = require("../../validation/passwordSchema");
 const userServices = require("../../services/user.services");
-const bcryptjs = require("bcryptjs");
 const { mobileLoginSchema, verifyDevicePinSchema, refreshTokenSchema } = require("../../schemas/users");
 
 // Define Joi schema for email validation
 const emailSchema = Joi.string().email().required();
 
 const userController = {
+  //------------------ upload profile pic-------------//
+  async uploadProfileImage(req, res, next){
+    try{
+      let user = await User.findById(req.user);
+
+      user.image = req.profileImageUrl;
+
+      await user.save();
+
+      return res.status(200).send({
+        message: "Profile Image has been uploaded",
+        data: {
+          "profileImage": user.image
+        }
+      })
+    }
+    catch(err){
+      return res.status(500).send({
+        success: false,
+        data: { error: err.message },
+      });
+    }
+  },
   // ----------------- register User -----------------
   async registerUser(req, res) {
     try {
@@ -179,8 +201,8 @@ const userController = {
           data: { error: error.details.map((detail) => detail.message) },
         });
       } else {
-          const salt = await bcrypt.genSalt(10);
-          const hashPin = await bcrypt.hash(req.body.pin, salt);
+          const salt = await bcryptjs.genSalt(10);
+          const hashPin = await bcryptjs.hash(req.body.pin, salt);
           userData.pin = hashPin;
           // add user
           let userCreated = null;
@@ -288,15 +310,15 @@ const userController = {
         });
       }
       
-      if(!bcrypt.compareSync(oldPin, user.pin)){
+      if(!bcryptjs.compareSync(oldPin, user.pin)){
         return res.status(400).json({
           success: false,
           data: { error: "Old Pin doesn't match" },
         });
       }
 
-      const salt = await bcrypt.genSalt(10);
-      const hash_Password = await bcrypt.hash(newPin, salt);
+      const salt = await bcryptjs.genSalt(10);
+      const hash_Password = await bcryptjs.hash(newPin, salt);
       user.pin = hash_Password;
       await user.save();
       return res.status(200).send({
@@ -333,8 +355,8 @@ const userController = {
         });
       }
   
-      const salt = await bcrypt.genSalt(10);
-      const hash_Pin = await bcrypt.hash(pin, salt);
+      const salt = await bcryptjs.genSalt(10);
+      const hash_Pin = await bcryptjs.hash(pin, salt);
   
       // Check if the hashed PIN already exists
       const existingUser = await User.findOne({ plainPin: pin });
@@ -384,8 +406,8 @@ const userController = {
         });
       }
   
-      const salt = await bcrypt.genSalt(10);
-      const hash_Pin = await bcrypt.hash(pin, salt);
+      const salt = await bcryptjs.genSalt(10);
+      const hash_Pin = await bcryptjs.hash(pin, salt);
   
       // Check if the hashed PIN already exists
       const existingUser = await User.findOne({ plainPin: pin });
@@ -422,7 +444,7 @@ const userController = {
     try {
       const { id, confirmPassword } = req.params;
       let user = await User.findOne({ _id: id });
-      const matchPass = await bcrypt.compare(confirmPassword, user.password);
+      const matchPass = await bcryptjs.compare(confirmPassword, user.password);
       if (matchPass) {
         // Changed parameter name from res to result
         return res.status(200).send({
@@ -458,7 +480,7 @@ const userController = {
           },
         });
       } else {
-        const matchPass = await bcrypt.compare(password, user.password);
+        const matchPass = await bcryptjs.compare(password, user.password);
         if (!matchPass) {
           if (user.loginAttempt >= 3) {
             await User.findOneAndUpdate({ email }, { locked: true });
@@ -554,8 +576,8 @@ async loginWithPin(req, res) {
         // Find the user by email
         let user = await User.findOne({ email: email });
         let otpExist = await Otp.findOne({ email: email });
-        const salt = await bcrypt.genSalt(10);
-        let hashedOtp = await bcrypt.hash(new_otp, salt);
+        const salt = await bcryptjs.genSalt(10);
+        let hashedOtp = await bcryptjs.hash(new_otp, salt);
 
         if (!user) {
           return res.status(400).json({
@@ -665,7 +687,7 @@ async loginWithPin(req, res) {
       if(user.deviceId && user.deviceId!= deviceId){
         return res.status(400).send({
           "success": false,
-          "messsage": "User has already been registered on another device Id,"
+          "message": "User has already been registered on another device Id,"
         })
       }
 
@@ -673,7 +695,7 @@ async loginWithPin(req, res) {
       if(!(await bcryptjs.compare(pin, user.pin))){
         return res.status(400).send({
           "success": false,
-          "messsage": "Credentials or Pin is not correct"
+          "message": "Credentials or Pin is not correct"
         })
       }
 
@@ -750,7 +772,7 @@ async loginWithPin(req, res) {
       if(user.deviceId && user.deviceId!= deviceId){
         return res.status(400).send({
           "success": false,
-          "messsage": "User has already been registered on another device Id"
+          "message": "User has already been registered on another device Id"
         })
       }
 
@@ -758,7 +780,7 @@ async loginWithPin(req, res) {
       if(!(await bcryptjs.compare(pin, user.pin))){
         return res.status(400).send({
           "success": false,
-          "messsage": "Credentials or Pin is not correct"
+          "message": "Credentials or Pin is not correct"
         })
       }
 
@@ -815,6 +837,30 @@ async loginWithPin(req, res) {
         data: { error: e.message },
       });
     }
+  },
+  async verifyPassword(req, res, next){
+    let {pin} = req.body;
+
+    let userId = req.user;
+    
+    let user = await User.findById(userId);
+
+    if(!user)
+      return res.status(404).send({
+        message: "User not found"
+      })
+    
+    if(!(await bcryptjs.compare(pin, user.pin))){
+      return res.status(400).send({
+        "success": false,
+        "message": "pin is not correct"
+      })
+    }
+
+    return res.status(200).send({
+      "success": true,
+      "message": "Pin has been verified"
+    })
   },
   async refreshTokenCall(req, res, next){
     try{

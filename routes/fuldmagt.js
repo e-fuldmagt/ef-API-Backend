@@ -105,7 +105,8 @@ fuldmagtRouter.put('/updateFuldmagt/:id',
                 let signatureFileObj = req.files["signature"][0];
                 req.signatureUrl = await uploadFileObjectToFirebase(signatureFileObj, req.user); 
             }
-            else if(req.files["postImage"] && req.files["postImage"][0]){
+            
+            if(req.files["postImage"] && req.files["postImage"][0]){
                 let postImageFileObj = req.files["postImage"][0];
                 req.postImageUrl = await uploadFileObjectToFirebase(postImageFileObj, req.user);
             }

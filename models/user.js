@@ -17,6 +17,8 @@ const userSchema = new Schema({
   },
   image: {
     type: String,
+    required: true,
+    default: "https://firebasestorage.googleapis.com/v0/b/fuldmagt-8cb2d.appspot.com/o/default-profile-image.jpg?alt=media&token=89dd7bc3-eb17-4e3b-a98d-9184d54a623b"
   },
   phone: {
     countryCode: {
