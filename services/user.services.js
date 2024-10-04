@@ -218,20 +218,19 @@ const userServices = {
         // Fetch users based on the filter
         const users = await User.aggregate(
             [
-               { $match: {
-                    ...filter
-                    }
-                },
                 {
                     $addFields: {
                         name: {$concat: ["$name.firstName", " ", "$name.lastName"]}
+                    }
+                },
+               { $match: {
+                    ...filter
                     }
                 },
                 { $unset: [ "pin", "refreshTokens"] }
 
             ]
         );
-        console.log(users);
         // Send back the results
         return users;
     },

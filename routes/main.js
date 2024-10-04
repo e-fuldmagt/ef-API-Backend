@@ -4,7 +4,6 @@ const companyRouter = require("./company");
 const fuldmagtRouter = require("./fuldmagt");
 
 const signPackageRouter = require("./package/signPackage");
-const tokenRouter = require("./token");
 const adminRouter = require("./admin");
 const packageRouter = require("./package");
 
@@ -24,7 +23,6 @@ router.use("/company", companyRouter);
 router.use("/admin", adminRouter)
 router.use("/fuldmagt", fuldmagtRouter);
 router.use("/package", packageRouter);
-router.use("/token", tokenRouter);
 
 module.exports = router;
 
