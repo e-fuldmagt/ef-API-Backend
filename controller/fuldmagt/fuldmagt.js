@@ -23,7 +23,7 @@ const fuldmagtController = {
                 })
             }
 
-            if(fuldmagt.fuldmagtGiverId != req.user){
+            if(fuldmagt.fuldmagtGiverId != req.user && fuldmagt.fuldmagtGiverId != req.company){
                 return res.status(401).send({
                     "message": "You are not fulmagt Owner"
                 })
@@ -238,24 +238,13 @@ const fuldmagtController = {
 
             let agent = await User.findById(req.user);
 
-            if(fuldmagtData.accountType == "user"){
-                fuldmagtData.agentId = agent._id;
-                fuldmagtData.agentName = agent.name.firstName + " " + agent.name.lastName;
-                fuldmagtData.agentDOB = agent.dateOfBirth;
-                fuldmagtData.agentEmail = agent.email;
-                fuldmagtData.agentPhone = agent.phone
-            }
-            // else if(fuldmagtData.accountType == "company"){
-            //     if(!req.company)
-            //         return res.status(400).send({
-            //             success: false,
-            //             message: "Company is not registered on user"
-            //         })
-                
-            //     let company = await Company.findById(req.company);
-            //     fuldmagtData.fuldmagtGiverId = company._id;
-            //     fuldmagtData.fuldmagtGiverName = company.companyName;
-            // }
+            fuldmagtData.accountType = "user" //It will always be User as Company cannot request it//
+            fuldmagtData.agentId = agent._id;
+            fuldmagtData.agentName = agent.name.firstName + " " + agent.name.lastName;
+            fuldmagtData.agentDOB = agent.dateOfBirth;
+            fuldmagtData.agentEmail = agent.email;
+            fuldmagtData.agentPhone = agent.phone
+
             
             let fuldmagtRequest = new FuldmagtRequest(fuldmagtData);
 
@@ -514,6 +503,7 @@ const fuldmagtController = {
     async getSpecificfuldmagt(req, res, next){
         try{
             let userId = req.user;
+            let companyId = req.company;
             let fuldmagtId = req.params.id;
 
             let fuldmagt = await Fuldmagt.findById(fuldmagtId);
@@ -525,7 +515,7 @@ const fuldmagtController = {
                 })
             }
             console.log(fuldmagt);
-            if(fuldmagt.fuldmagtGiverId != userId && fuldmagt.agentId != userId){
+            if(fuldmagt.fuldmagtGiverId != userId && fuldmagt.fuldmagtGiverId != companyId && fuldmagt.agentId != userId){
                 return res.status(401).send({
                     "success": false,
                     "message": "You don't have access to this fuldmagt"
