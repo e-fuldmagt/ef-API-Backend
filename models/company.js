@@ -36,6 +36,8 @@ const companySchema = new Schema({
   },
   image: {
     type: String,
+    required: true,
+    default: "https://firebasestorage.googleapis.com/v0/b/fuldmagt-8cb2d.appspot.com/o/default-company-image.png?alt=media&token=736193c4-0516-4e31-bc38-fc61af7197f0"
   },
   phone: {
     countryCode: {
