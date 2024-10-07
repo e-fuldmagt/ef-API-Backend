@@ -77,7 +77,6 @@ const notificationController = {
   },
   async addNotificationToken(req, res, next){
     try{
-      console.log("notification body", req.body)
         let userId = req.user;
 
         let {notificationId} = req.body;
@@ -94,14 +93,14 @@ const notificationController = {
         //check if there is a user with already same notificationId
         let checkUser = await User.findOne({notificationIds: notificationId});
 
-        if(checkUser && checkUser._id.toString() == user._id.toString()){
+        if(checkUser && checkUser._id.toString() != user._id.toString()){
             checkUser.notificationIds = checkUser.notificationIds.filter(
                 (nId) => nId != notificationId
             )
             await checkUser.save();
         }
 
-        if(checkUser && checkUser._id.toString() == user._id.toString()){
+        else if(checkUser && checkUser._id.toString() == user._id.toString()){
             return res.status(200).send({
                 success: true,
                 message: "Notifcation Id is already attached to given user."
