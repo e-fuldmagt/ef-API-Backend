@@ -124,6 +124,8 @@ fuldmagtRouter.put('/updateFuldmagt/:id',
 
 fuldmagtRouter.put('/issueAgain/:id', authGuard, fuldmagtController.issueAgain);
 
+fuldmagtRouter.get('/getUserfuldmagtForms', authGuard, fuldmagtController.getUserfuldmagtForms)
+
 fuldmagtRouter.get('/getSpecificFuldmagtRequest/:id', authGuard, fuldmagtController.getSpecificFuldmagtRequest);
 
 fuldmagtRouter.get('/getUserfuldmagts', authGuard, fuldmagtController.getUserfuldmagts);

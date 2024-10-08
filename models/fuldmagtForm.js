@@ -8,15 +8,23 @@ const fuldmagtFormSchema = new Schema({
     required: true,
     unique: true
   },
-  form: {
+  icon: {
     type: String,
     required: true,
   },
-  visibility: {
-    user: [{ type: mongoose.Schema.ObjectId, ref: "user" }],
-    company: [
-      { type: mongoose.Schema.ObjectId, ref: "company" },
-    ],
+  createdAt: {
+    type: Date,
+    default: Date.now
   },
+  allowedUsers: {
+    type: [{ type: mongoose.Schema.ObjectId, ref: "user" }],
+    default: []
+  },
+  allowedCompanies: {
+    type: [{ type: mongoose.Schema.ObjectId, ref: "company" }],
+    default: []
+  }
 });
-module.exports = mongoose.model("fuldmagtForm", fuldmagtFormSchema, "fuldmagtForms");
+let FulmagtForm =  mongoose.model("fuldmagtForm", fuldmagtFormSchema, "fuldmagtForms");
+
+module.exports = FulmagtForm;

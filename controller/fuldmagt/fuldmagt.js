@@ -7,6 +7,8 @@ const Fuldmagt = require("../../models/fuldmagt");
 const fuldmagtServices = require("../../services/fuldmagt.services");
 const mongoose = require("mongoose");
 const FuldmagtRequest = require("../../models/fuldmagtRequests");
+const fuldmagtForm = require("../../models/fuldmagtForm");
+const FulmagtForm = require("../../models/fuldmagtForm");
 
 
 
@@ -608,6 +610,63 @@ const fuldmagtController = {
                 "success": true,
                 "data": {
                     fuldmagts: allFuldmagts
+                }
+            })
+        }
+        catch(err){
+            return res.status(500).send({
+                success: false,
+                message: err.message
+            });
+        }
+    },
+    async allowUserFuldmagtForm(req, res, next){
+        try{
+            let {
+                userId,
+                fulmagtFormId
+            } = req.body;
+
+            let user = await User.findById(userId);
+
+            if(!user)
+                return res.status(404).send({
+                    message: "User with current id not found"
+                });
+            
+            let fuldmagtForm = await FulmagtForm.findById(fulmagtFormId);
+
+            if(!fuldmagtForm)
+                return res.status(404).send({
+                    message: "Fuldmagt form with given id not found"
+                });
+            
+            
+            
+        }
+        catch(err){
+            return res.status(500).send({
+                success: false,
+                message: err.message
+            });
+        }
+    },
+    async getUserfuldmagtForms(req, res, next){
+        try{
+            let userId = req.user;
+            let companyId = req.company;
+
+            let fuldmagtForms = await FulmagtForm.find({
+                $or: [
+                    {allowedUsers: userId},
+                    {allowedCompanies: companyId}
+                ]
+            });
+
+            return res.status(200).send({
+                message: "Fulmagt Forms Received",
+                data: {
+                    fuldmagtForms
                 }
             })
         }
