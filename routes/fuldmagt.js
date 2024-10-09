@@ -3,6 +3,7 @@ const { upload, uploadFileObjectToFirebase } = require("../services/Firebase_Sig
 const authGuard = require("../middleware/authGuard.middleware");
 const fuldmagtController = require("../controller/fuldmagt/fuldmagt");
 const { decode64FilesMiddleware } = require("../middleware/decode64.middleware");
+const { errorHandler } = require("../handlers/error.handlers");
 
 const fuldmagtRouter = express.Router();
 
@@ -37,7 +38,7 @@ fuldmagtRouter.post("/createFuldmagt",
             })
         }
     },
-    fuldmagtController.createFuldmagt
+    errorHandler(fuldmagtController.createFuldmagt)
 );
 
 fuldmagtRouter.post("/requestFuldmagt",
@@ -61,7 +62,7 @@ fuldmagtRouter.post("/requestFuldmagt",
             })
         }
     },
-    fuldmagtController.requestFuldmagt
+    errorHandler(fuldmagtController.requestFuldmagt)
 );
 
 fuldmagtRouter.post('/approveFuldmagtRequest/:id', 
@@ -87,10 +88,10 @@ fuldmagtRouter.post('/approveFuldmagtRequest/:id',
             })
         }
     },
-    fuldmagtController.approveFuldmagtRequest
+    errorHandler(fuldmagtController.approveFuldmagtRequest)
 )
 
-fuldmagtRouter.put('/revokeFuldmagt/:id', authGuard, fuldmagtController.revokeFuldmagt);
+fuldmagtRouter.put('/revokeFuldmagt/:id', authGuard, errorHandler(fuldmagtController.revokeFuldmagt));
 
 fuldmagtRouter.put('/updateFuldmagt/:id', 
     upload.fields([
@@ -119,17 +120,17 @@ fuldmagtRouter.put('/updateFuldmagt/:id',
             })
         }
     },
-    fuldmagtController.updateFuldmagt
+    errorHandler(fuldmagtController.updateFuldmagt)
 );
 
-fuldmagtRouter.put('/issueAgain/:id', authGuard, fuldmagtController.issueAgain);
+fuldmagtRouter.put('/issueAgain/:id', authGuard, errorHandler(fuldmagtController.issueAgain));
 
-fuldmagtRouter.get('/getUserfuldmagtForms', authGuard, fuldmagtController.getUserfuldmagtForms)
+fuldmagtRouter.get('/getUserfuldmagtForms', authGuard, errorHandler(fuldmagtController.getUserfuldmagtForms))
 
-fuldmagtRouter.get('/getSpecificFuldmagtRequest/:id', authGuard, fuldmagtController.getSpecificFuldmagtRequest);
+fuldmagtRouter.get('/getSpecificFuldmagtRequest/:id', authGuard, errorHandler(fuldmagtController.getSpecificFuldmagtRequest));
 
-fuldmagtRouter.get('/getUserfuldmagts', authGuard, fuldmagtController.getUserfuldmagts);
+fuldmagtRouter.get('/getUserfuldmagts', authGuard, errorHandler(fuldmagtController.getUserfuldmagts));
 
-fuldmagtRouter.get('/getSpecificfuldmagt/:id', authGuard, fuldmagtController.getSpecificfuldmagt)
+fuldmagtRouter.get('/getSpecificfuldmagt/:id', authGuard, errorHandler(fuldmagtController.getSpecificfuldmagt))
 
 module.exports = fuldmagtRouter;

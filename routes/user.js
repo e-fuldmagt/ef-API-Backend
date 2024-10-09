@@ -11,26 +11,27 @@ const User = require('../models/user');
 const authGuard = require("../middleware/authGuard.middleware");
 const notificationController = require("../controller/notifications/notifications");
 const { decode64FileMiddleware, decode64FilesMiddleware } = require("../middleware/decode64.middleware");
+const { errorHandler } = require("../handlers/error.handlers");
 const userRouter = express.Router();
 
 //User Sign up Functionality//
-userRouter.post("/sendOTP", userOtpController.sendOTPToCredentials);
-userRouter.post("/signup/verifyOTP", userOtpController.verifySignupOtp);
-userRouter.post("/signup/registerUser", userController.registerUser);
-userRouter.post("/create-password", userController.createPassword);
-userRouter.post("/login", userController.login);
-userRouter.post("/forgot-password/verifyOTP", userOtpController.verifyForgotPasswordOtp);
-userRouter.get("/users", userController.getUsers);
-userRouter.post('/verifyDevicePin', userController.verifyDevicePin);
-userRouter.post('/mobileLogin', userController.mobileLogin);
-userRouter.get('/users/:id', userController.getUser);
-userRouter.delete("/deactivateAccount", authGuard, userController.deactivateAccount);
-userRouter.put('/refreshTokenCall', authGuard, userController.refreshTokenCall);
-userRouter.put("/setPassword/", authGuard, userController.setPassword);
-userRouter.put("/updateInfo", authGuard, userController.updateUser);
-userRouter.put("/updateEmail", authGuard, userOtpController.verifyUpdateEmailOtp);
-userRouter.put("/updatePhoneNumber", authGuard, userOtpController.verifyUpdatePhoneNumberOtp)
-userRouter.post("/logout", authGuard, userController.logout);
+userRouter.post("/sendOTP", errorHandler(userOtpController.sendOTPToCredentials));
+userRouter.post("/signup/verifyOTP", errorHandler(userOtpController.verifySignupOtp));
+userRouter.post("/signup/registerUser", errorHandler(userController.registerUser));
+userRouter.post("/create-password", errorHandler(userController.createPassword));
+userRouter.post("/login", errorHandler(userController.login));
+userRouter.post("/forgot-password/verifyOTP", errorHandler(userOtpController.verifyForgotPasswordOtp));
+userRouter.get("/users", errorHandler(userController.getUsers));
+userRouter.post('/verifyDevicePin', errorHandler(userController.verifyDevicePin));
+userRouter.post('/mobileLogin', errorHandler(userController.mobileLogin));
+userRouter.get('/users/:id', errorHandler(userController.getUser));
+userRouter.delete("/deactivateAccount", authGuard, errorHandler(userController.deactivateAccount));
+userRouter.put('/refreshTokenCall', authGuard, errorHandler(userController.refreshTokenCall));
+userRouter.put("/setPassword/", authGuard, errorHandler(userController.setPassword));
+userRouter.put("/updateInfo", authGuard, errorHandler(userController.updateUser));
+userRouter.put("/updateEmail", authGuard, errorHandler(userOtpController.verifyUpdateEmailOtp));
+userRouter.put("/updatePhoneNumber", authGuard, errorHandler(userOtpController.verifyUpdatePhoneNumberOtp))
+userRouter.post("/logout", authGuard, errorHandler(userController.logout));
 userRouter.put('/uploadSignature/', upload.single('file'), authGuard, decode64FileMiddleware('file'),  async (req, res, next) => {
     try {
         const id = req.user; // Extract id from request parameters
@@ -39,9 +40,9 @@ userRouter.put('/uploadSignature/', upload.single('file'), authGuard, decode64Fi
         console.error('Error handling file upload to Firebase:', error);
         res.status(500).send({ success: false, message: 'Failed to handle file upload' });
     }
-}, userSignatureController.addSignature);
-userRouter.get("/getSignature/:id", userSignatureController.getSignature)
-userRouter.post("/verifyPassword", authGuard, userController.verifyPassword);
+}, errorHandler(userSignatureController.addSignature));
+userRouter.get("/getSignature/:id", errorHandler(userSignatureController.getSignature))
+userRouter.post("/verifyPassword", authGuard, errorHandler(userController.verifyPassword));
 //Upload Profile Image
 userRouter.put('/uploadProfileImage', 
     upload.fields([
@@ -66,12 +67,12 @@ userRouter.put('/uploadProfileImage',
             })
         }
     },
-    userController.uploadProfileImage
+    errorHandler(userController.uploadProfileImage)
 );
 //User Notifications//
-userRouter.put("/add-notifications-token/", authGuard, notificationController.addNotificationToken);
-userRouter.get("/notifications", authGuard, notificationController.getUserNotifications)
-userRouter.put("/setActivityNotification", authGuard, notificationController.setActivityNotification)
-userRouter.get("/notificationSettings", authGuard, notificationController.getNotificationSettings)
+userRouter.put("/add-notifications-token/", authGuard, errorHandler(notificationController.addNotificationToken));
+userRouter.get("/notifications", authGuard, errorHandler(notificationController.getUserNotifications))
+userRouter.put("/setActivityNotification", authGuard, errorHandler(notificationController.setActivityNotification))
+userRouter.get("/notificationSettings", authGuard, errorHandler(notificationController.getNotificationSettings))
 
 module.exports = userRouter;

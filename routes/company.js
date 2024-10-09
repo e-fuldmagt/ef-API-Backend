@@ -9,20 +9,21 @@ const companySignatureController = require("../controller/company/signatures");
 const {upload, uploadFileToFirebase} = require("../services/Firebase_SignStorage");
 const authGuard = require("../middleware/authGuard.middleware");
 const { decode64FileMiddleware } = require("../middleware/decode64.middleware");
+const { errorHandler } = require("../handlers/error.handlers");
 
 const companyRouter = express.Router();
 
 // routes
-companyRouter.post("/verifyCompanyCredentials", authGuard, companyController.verifyCompanyCredentials);
-companyRouter.post("/register", authGuard, companyController.addCompany);
-companyRouter.post("/registerUnverified", authGuard, companyController.addCompanyUnverified);
-companyRouter.put("/assignCompany/:id", authGuard, companyController.assignCompany);
+companyRouter.post("/verifyCompanyCredentials", authGuard, errorHandler(companyController.verifyCompanyCredentials));
+companyRouter.post("/register", authGuard, errorHandler(companyController.addCompany));
+companyRouter.post("/registerUnverified", authGuard, errorHandler(companyController.addCompanyUnverified));
+companyRouter.put("/assignCompany/:id", authGuard, errorHandler(companyController.assignCompany));
 
-companyRouter.get("/getCompany/:id", companyController.getSpecificCompany);
+companyRouter.get("/getCompany/:id", errorHandler(companyController.getSpecificCompany));
 
-companyRouter.put("/update", authGuard, companyController.updateCompany);
-companyRouter.get("/getSignature/:id", companySignatureController.getSignature);
-companyRouter.get("/getCompanies", companyController.getCompanies);
+companyRouter.put("/update", authGuard, errorHandler(companyController.updateCompany));
+companyRouter.get("/getSignature/:id", errorHandler(companySignatureController.getSignature));
+companyRouter.get("/getCompanies", errorHandler(companyController.getCompanies));
 // add signature route
 companyRouter.put('/uploadSignature/', upload.single('file'), decode64FileMiddleware('file'), authGuard, async (req, res, next) => {
     try {
@@ -32,7 +33,7 @@ companyRouter.put('/uploadSignature/', upload.single('file'), decode64FileMiddle
         console.error('Error handling file upload to Firebase:', error);
         res.status(500).send({ success: false, message: 'Failed to handle file upload' });
     }
-}, companySignatureController.addSignature);
+}, errorHandler(companySignatureController.addSignature));
 
 
 
