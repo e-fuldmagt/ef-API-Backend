@@ -2,12 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const router = require("../routes/main");
-const initSocket = require("../routes/socket");
 const http = require("http");
 const mongoose = require("mongoose");
 const path = require("path");
-const { sendMessage } = require("../services/SMSService");
-const { sendNotificationByUserId } = require("../services/notification.services");
 
 //firebase key update
 
@@ -16,13 +13,6 @@ class App {
     this.app = express();
     this.app.use(express.json());
     this.http = new http.Server(this.app);
-    this.io = require("socket.io")(this.http, {
-      withCredentials: true,
-      transports: ["websocket", "polling"],
-      cors: {
-        origin: "*",
-      },
-    });
     this.PORT = process.env.PORT || 8000;
     this.initMiddleware();
     this.connectToMongoDB();
@@ -58,7 +48,6 @@ class App {
 
     this.app.use(express.static(publicPath));
     this.app.use("/", router);
-    initSocket(this.io);
   }
   createServer() {
     this.http.listen(this.PORT, () => {

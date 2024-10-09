@@ -1,7 +1,7 @@
-import { errorResponse } from "../utils/responses.js";
+const { errorResponse } = require("../utils/responses");
 
 //Error with no status code.
-export const assignHTTPError = (error, req, res, next)=>{
+const assignHTTPError = (error, req, res, next)=>{
     console.log(error);
     
     if(error.name === "ValidationError"){
@@ -45,7 +45,7 @@ export const assignHTTPError = (error, req, res, next)=>{
   
 // Error handling Middleware function reads the error message 
 // and sends back a response in JSON format
-export const errorResponder = (error, req, res, next) => {
+const errorResponder = (error, req, res, next) => {
     res.header("Content-Type", 'application/json')
     const status = error.status
     res.status(status||500).send(errorResponse(error));
@@ -53,7 +53,9 @@ export const errorResponder = (error, req, res, next) => {
 
 // Fallback Middleware function for returning 
 // 404 error for undefined paths
-export const invalidPathHandler = (req, res) => {
+const invalidPathHandler = (req, res) => {
     res.status(404)
     res.send(errorResponse('Invalid path, There is no route with the given path.'))
 }
+
+module.exports ={assignHTTPError, errorResponder, invalidPathHandler}

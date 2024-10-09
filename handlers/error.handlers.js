@@ -1,4 +1,4 @@
-export const errorHandler = (controller)=>{
+ const errorHandler = (controller)=>{
     return async (req, res, next)=>{
         try{
             await controller(req, res, next)
@@ -8,3 +8,5 @@ export const errorHandler = (controller)=>{
         }
     }
 }
+
+module.exports = {errorHandler}
