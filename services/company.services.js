@@ -203,6 +203,31 @@ const companyServices = {
       await user.save();
 
       return company;
+    },
+
+    async getCompanySignature(companyId){
+      let company = await Company.findById(companyId);
+  
+      if(!company)
+        throw new createHttpError.NotFound("Company not found");
+  
+      if(!company.signature)
+        throw new createHttpError.NotFound("Company signature doesn't exist");
+  
+      return company.signature;
+    },
+
+    async updateCompanySignature(companyId, signature){
+      const company = await Company.findById(companyId);
+
+      if(!company)
+        throw new createHttpError("Company not found");
+
+      company.signature = signature;
+
+      await company.save()
+
+      return company.signature;
     }
 }
 

@@ -3,7 +3,6 @@ const Company = require('../models/company')
 
 // controlers
 const companyController = require("../controller/company.controllers");
-const companySignatureController = require("../controller/company/signatures");
 
 // middleware
 const {upload, uploadFileToFirebase} = require("../services/Firebase_SignStorage");
@@ -34,7 +33,7 @@ companyRouter.put("/update",
     authGuard, 
     errorHandler(companyController.updateCompanyByUser));
 companyRouter.get("/getSignature/:id", 
-    errorHandler(companySignatureController.getSignature));
+    errorHandler(companyController.getCompanySignature));
 companyRouter.get("/getCompanies", 
     errorHandler(companyController.getCompanies));
 // add signature route
@@ -51,7 +50,7 @@ companyRouter.put('/uploadSignature/',
             res.status(500).send({ success: false, message: 'Failed to handle file upload' });
         }
     }, 
-    errorHandler(companySignatureController.addSignature)
+    errorHandler(companyController.updateCompanySignature)
 );
 
 

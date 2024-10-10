@@ -4,6 +4,7 @@ const User = require("../models/user");
 const cryptoJs = require("crypto-js");
 const companyServices = require("../services/company.services");
 const { dataResponse } = require("../utils/responses");
+const createHttpError = require("http-errors");
 
 const companyController = {
   async verifyCompanyCredentials(req, res){
@@ -82,12 +83,22 @@ const companyController = {
 
   //---------------------Company Signatures----------------------//
   async getCompanySignature(req, res){
+    let companyId = req.params.id;
 
+    let signature = await companyServices.getCompanySignature(companyId);
+
+    return res.status(200).send(dataResponse("Company signature has been retrieved", {signature}))
   },
-
-
+  //----------------------Update Signature---------------------//
   async updateCompanySignature(req, res){
-    
+    const companyId = req.company;
+    const signature = req.fileUrl;
+
+    let companySignature = await companyServices.updateCompanySignature(companyId, signature);
+
+    return res.status(200).send(
+      dataResponse("Signature has been updated successfully", {signature: companySignature})
+    )
   }
 };
 
