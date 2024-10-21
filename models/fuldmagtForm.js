@@ -1,3 +1,4 @@
+const { required } = require("joi");
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
@@ -23,6 +24,29 @@ const fuldmagtFormSchema = new Schema({
   allowedCompanies: {
     type: [{ type: mongoose.Schema.ObjectId, ref: "company" }],
     default: []
+  },
+  additionalFields: {
+    type: [String],
+    required: true
+  },
+  additionalFieldsType: {
+    type: [{
+      type: String,
+      enum: ["headline", "note", "textField", "textArea", "dateAndTime", "radioButton", "checkboxes"]
+    }],
+    required: true
+  },
+  additionalFieldsName: {
+    type: [String],
+    required: true
+  },
+  fuldmagtStatement: {
+    type: String,
+    required: true
+  },
+  fuldmagtCredentials: {
+    type: String,
+    required: true
   }
 });
 let FulmagtForm =  mongoose.model("fuldmagtForm", fuldmagtFormSchema, "fuldmagtForms");

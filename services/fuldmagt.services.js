@@ -422,7 +422,8 @@ const fuldmagtServices = {
     },
     async fuldmagtAssignmentForEmailChange(user){
         
-    }
+    },
+    
 }
 
 module.exports = fuldmagtServices

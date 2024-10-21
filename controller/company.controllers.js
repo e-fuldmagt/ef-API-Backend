@@ -1,10 +1,6 @@
 const jwt = require("jsonwebtoken");
-const Company = require("../models/company");
-const User = require("../models/user");
-const cryptoJs = require("crypto-js");
 const companyServices = require("../services/company.services");
 const { dataResponse } = require("../utils/responses");
-const createHttpError = require("http-errors");
 
 const companyController = {
   async verifyCompanyCredentials(req, res){
