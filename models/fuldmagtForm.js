@@ -1,4 +1,3 @@
-const { required } = require("joi");
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
@@ -17,13 +16,23 @@ const fuldmagtFormSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  allowedUsers: {
+  selectedUsers: {
     type: [{ type: mongoose.Schema.ObjectId, ref: "user" }],
     default: []
   },
-  allowedCompanies: {
+  selectedCompanies: {
     type: [{ type: mongoose.Schema.ObjectId, ref: "company" }],
     default: []
+  },
+  exceptUsers: {
+     type: Boolean,
+     required: true,
+     default: false
+  },
+  exceptCompanies: {
+    type: Boolean,
+    required: true,
+    default: false
   },
   additionalFields: {
     type: [String],
@@ -32,23 +41,30 @@ const fuldmagtFormSchema = new Schema({
   additionalFieldsType: {
     type: [{
       type: String,
-      enum: ["headline", "note", "textField", "textArea", "dateAndTime", "radioButton", "checkboxes"]
+      enum: ["headline", "note", "textField", "textArea", "date", "radioButtons", "checkBoxes"]
     }],
     required: true
   },
-  additionalFieldsName: {
-    type: [String],
+  isAgentSignRequired: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  additionalFieldsObject: {
+    type: [Object],
     required: true
+  },
+  purchaseType: {
+    type: String,
+    required: true,
+    default: "tier1",
+    enum: ["tier1", "tier2", "tier3"]
   },
   fuldmagtStatement: {
     type: String,
     required: true
-  },
-  fuldmagtCredentials: {
-    type: String,
-    required: true
   }
 });
-let FulmagtForm =  mongoose.model("fuldmagtForm", fuldmagtFormSchema, "fuldmagtForms");
+let FuldmagtForm =  mongoose.model("fuldmagtForm", fuldmagtFormSchema, "fuldmagtForms");
 
-module.exports = FulmagtForm;
+module.exports = FuldmagtForm;

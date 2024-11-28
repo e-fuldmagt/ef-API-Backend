@@ -12,6 +12,8 @@ const authGuard = require("../middleware/authGuard.middleware");
 const notificationController = require("../controller/notifications/notifications");
 const { decode64FileMiddleware, decode64FilesMiddleware } = require("../middleware/decode64.middleware");
 const { errorHandler } = require("../handlers/error.handlers");
+const fuldmagtFormController = require("../controller/fuldmagtForm.controllers");
+const fuldmagtController = require("../controller/fuldmagt.controllers");
 const userRouter = express.Router();
 
 //User Sign up Functionality//
@@ -74,5 +76,131 @@ userRouter.put("/add-notifications-token/", authGuard, errorHandler(notification
 userRouter.get("/notifications", authGuard, errorHandler(notificationController.getUserNotifications))
 userRouter.put("/setActivityNotification", authGuard, errorHandler(notificationController.setActivityNotification))
 userRouter.get("/notificationSettings", authGuard, errorHandler(notificationController.getNotificationSettings))
+
+//----------------------------------------------------------------------------------------------------------//
+
+//-----------------Fuldmagts-----------------//
+userRouter.post("/fuldmagts",
+    upload.fields([
+        { name: 'fuldmagtGiverSignature', maxCount: 1 }   // Second field for the second image
+    ]),
+    authGuard,
+    decode64FilesMiddleware(["fuldmagtGiverSignature"]),
+    async (req, res, next)=>{
+        try{
+            if(req.files["fuldmagtGiverSignature"] && req.files["fuldmagtGiverSignature"][0]){
+                let signatureFileObj = req.files["fuldmagtGiverSignature"][0];
+                req.fuldmagtGiverSignature = await uploadFileObjectToFirebase(signatureFileObj, req.user); 
+            }
+            if(!req.files["fuldmagtGiverSignature"] || !req.files["fuldmagtGiverSignature"][0])
+                throw new Error("Singature Image doesn't exist")
+            next();
+        }
+        catch(e){
+            return res.status(500).send({
+                "success": false,
+                "message": "An error occured while uploading images"
+            })
+        }
+    },
+    errorHandler(fuldmagtController.createFuldmagt)
+);
+
+userRouter.post("/fuldmagt-requests/",
+    upload.fields([
+        { name: 'postImage', maxCount: 1 },  // First field for the first image
+    ]),
+    authGuard,
+    decode64FilesMiddleware(["postImage"]),
+    async (req, res, next)=>{
+        try{
+            if(req.files["postImage"] && req.files["postImage"][0]){
+                let postImageFileObj = req.files["postImage"][0];
+                req.postImageUrl = await uploadFileObjectToFirebase(postImageFileObj, req.user);
+            }
+            next();
+        }
+        catch(e){
+            return res.status(500).send({
+                "success": false,
+                "message": "An error occured while uploading images"
+            })
+        }
+    },
+    errorHandler(fuldmagtController.requestFuldmagt)
+);
+
+userRouter.post('/fuldmagts/:id/approve', 
+    upload.fields([
+        { name: 'signature', maxCount: 1 }   // Second field for the second image
+    ]),
+    authGuard,
+    decode64FilesMiddleware(["signature"]),
+    async (req, res, next)=>{
+        try{
+            if(req.files["signature"] && req.files["signature"][0]){
+                let signatureFileObj = req.files["signature"][0];
+                req.signatureUrl = await uploadFileObjectToFirebase(signatureFileObj, req.user); 
+            }
+            if(!req.signatureUrl)
+                throw new Error("Singature Image doesn't exist")
+            next();
+        }
+        catch(e){
+            return res.status(500).send({
+                "success": false,
+                "message": "An error occured while uploading images"
+            })
+        }
+    },
+    errorHandler(fuldmagtController.approveFuldmagtRequest)
+)
+
+userRouter.put('/fuldmagts/:id/revoke', authGuard, errorHandler(fuldmagtController.revokeFuldmagt));
+
+userRouter.put('/fuldmagts/:id', 
+    upload.fields([
+        { name: 'postImage', maxCount: 1 },  // First field for the first image
+        { name: 'signature', maxCount: 1 }   // Second field for the second image
+    ]),
+    authGuard,
+    decode64FilesMiddleware(["postImage", "signature"]),
+    async (req, res, next)=>{
+        try{
+            if(req.files["signature"] && req.files["signature"][0]){
+                let signatureFileObj = req.files["signature"][0];
+                req.signatureUrl = await uploadFileObjectToFirebase(signatureFileObj, req.user); 
+            }
+            
+            if(req.files["postImage"] && req.files["postImage"][0]){
+                let postImageFileObj = req.files["postImage"][0];
+                req.postImageUrl = await uploadFileObjectToFirebase(postImageFileObj, req.user);
+            }
+            next();
+        }
+        catch(e){
+            return res.status(500).send({
+                "success": false,
+                "message": "An error occured while uploading images"
+            })
+        }
+    },
+    errorHandler(fuldmagtController.updateFuldmagt)
+);
+
+userRouter.put('/fuldmagts/:id/reissue', authGuard, errorHandler(fuldmagtController.issueAgain));
+
+
+userRouter.get('/fuldmagt-requests/:id', authGuard, errorHandler(fuldmagtController.getSpecificFuldmagtRequest));
+
+userRouter.get('/fuldmagts', authGuard, errorHandler(fuldmagtController.getUserfuldmagts));
+
+userRouter.get('/fuldmagts/:id', authGuard, errorHandler(fuldmagtController.getSpecificfuldmagt))
+
+//-------------------Fulmagts Form----------------//
+
+userRouter.get('/fuldmagt-forms', authGuard, errorHandler(fuldmagtFormController.getFuldmagtFormsByUser))
+
+
 
 module.exports = userRouter;

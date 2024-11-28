@@ -3,17 +3,18 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const fuldmagtSchema = new Schema({
-  title: {
-    type:String,
+  fuldmagtFormId: {
+    type: mongoose.Schema.ObjectId,
+    ref: "fuldmagtForm",
     required: true
-  },
-  postImage: {
-    type: String,
-    default: ""
   },
   accountType: {
     type: String,
     enum: ["user", "company"],
+  },
+  fuldmagtGiverImage: {
+    type: String,
+    required: true
   },
   fuldmagtGiverId: {
     type: mongoose.Schema.ObjectId,
@@ -45,9 +46,12 @@ const fuldmagtSchema = new Schema({
     },
     required: true
   },
-  signature: {
+  fuldmagtGiverSignature: {
     type: String,
     required: true
+  },
+  agentSignature: {
+    type: String
   },
   revoked:{
     type: Boolean,
@@ -64,13 +68,10 @@ const fuldmagtSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  acknowledged: {
-    type: Boolean,
-    default: false
+  additionalFieldsData: {
+    type: [Object],
+    required: true
   },
-  acknowledgedDate: {
-    type: Date,
-  }
 });
 
 const Fuldmagt = mongoose.model("fuldmagt", fuldmagtSchema, "fuldmagts");

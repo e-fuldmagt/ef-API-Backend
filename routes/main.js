@@ -1,7 +1,6 @@
 const express = require("express");
 const userRouter = require("./user");
 const companyRouter = require("./company");
-const fuldmagtRouter = require("./fuldmagt");
 const adminRouter = require("./admin");
 const { invalidPathHandler, errorResponder, assignHTTPError } = require("../middleware/error.middleware");
 
@@ -13,11 +12,11 @@ router.get("/", (req, res) => {
 
 router.use("/user", userRouter);
 router.use("/company", companyRouter);
-router.use("/admin", adminRouter)
-router.use("/fuldmagt", fuldmagtRouter);
+router.use("/admin", adminRouter);
 
-router.use(assignHTTPError)
+router.use(assignHTTPError);
 router.use(errorResponder);
-router.use(invalidPathHandler)
+router.use(invalidPathHandler);
+
 module.exports = router;
 

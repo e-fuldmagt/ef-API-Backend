@@ -3,12 +3,14 @@ const Joi = require('joi');
 
 
 const verifyCreateFuldmagt = Joi.object({  
-    title: Joi.string().required().messages({
-      'string.empty': 'Title is required.'
+    fuldmagtFormId: Joi.string().messages({
+      'string.empty': 'fuldmagtFormId ID cannot be empty.'
     }),
+    
+    additionalFieldsData: Joi.array().required(),
   
     accountType: Joi.string().valid('user', 'company').default('user').messages({
-      'any.only': 'Account type must be either "user" or "admin".'
+      'any.only': 'Account type must be either "user" or "company".'
     }),
   
     agentId: Joi.string().allow('').messages({

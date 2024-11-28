@@ -9,10 +9,35 @@ const mongoose = require("mongoose");
 const FuldmagtRequest = require("../models/fuldmagtRequests");
 const fuldmagtForm = require("../models/fuldmagtForm");
 const FulmagtForm = require("../models/fuldmagtForm");
+const createHttpError = require("http-errors");
+const { dataResponse } = require("../utils/responses");
 
 
 
 const fuldmagtController = {
+    async createFuldmagt(req, res, next){
+        let validate = verifyCreateFuldmagt.validate(req.body);
+        
+        if(validate.error){
+            throw createHttpError.BadRequest(validate.error.message);
+        }
+        
+        let fuldmagtData = {
+            fuldmagtGiverSignature: req.fuldmagtGiverSignature,
+            ...req.body,
+            agentPhone: {
+                countryCode: req.body.agentCountryCode,
+                number: req.body.agentPhoneNumber
+            }
+        }
+
+        let userId = req.user
+        
+        let fuldmagt = await fuldmagtServices.createFuldmagt(userId, fuldmagtData)
+
+        return res.status(200).send(dataResponse("fuldmagt has been added successfully", {fuldmagt}))
+    },
+
     async issueAgain(req, res, next){
         try{
             let fuldmagtId = req.params.id;
@@ -58,83 +83,7 @@ const fuldmagtController = {
             });
         }
     },
-    async createFuldmagt(req, res, next){
-        try{
-            let validate = verifyCreateFuldmagt.validate(req.body);
-            
-            if(validate.error){
-                return res.status(400).send({
-                "success": true,
-                "message": validate.error.message
-                })
-            }
-            let fuldmagtData = {
-                signature: req.signatureUrl,
-                ...req.body,
-                agentPhone: {
-                    countryCode: req.body.agentCountryCode,
-                    number: req.body.agentPhoneNumber
-                }
-            }
-            if(fuldmagtData.postImage)
-                fuldmagtData.postImage = req.postImageUrl;
-            let agentId = req.body.agentId;
-            let agent = null;
-            if(agentId){
-                agent = await User.findById(agentId);
-
-                if(!agent){
-                    return res.status(404).send({
-                        "success": false,
-                        "message": "agent not found by given Id"
-                    })
-                }
-
-                console.log(agent);
-                fuldmagtData.agentName = agent.name.firstName + " " + agent.name.lastName;
-                fuldmagtData.agentPhone = agent.phone,
-                fuldmagtData.agentDOB = agent.dateOfBirth,
-                fuldmagtData.agentEmail = agent.email
-            }
-
-            let fuldmagtGiver = await User.findById(req.user);
-
-            if(fuldmagtData.accountType == "user"){
-                fuldmagtData.fuldmagtGiverId = fuldmagtGiver._id;
-                fuldmagtData.fuldmagtGiverName = fuldmagtGiver.name.firstName + " " + fuldmagtGiver.name.lastName
-            }else if(fuldmagtData.accountType == "company"){
-                if(!req.company)
-                    return res.status(400).send({
-                        success: false,
-                        message: "Company is not registered on user"
-                    })
-                
-                let company = await Company.findById(req.company);
-                fuldmagtData.fuldmagtGiverId = company._id;
-                fuldmagtData.fuldmagtGiverName = company.companyName;
-            }
-            
-            let fuldmagt = new Fuldmagt(fuldmagtData);
-
-            await fuldmagt.save();
-
-            fuldmagtServices.notifyFuldmagtCreation(fuldmagt, agent)
-
-            return res.status(200).send({
-                success: true,
-                message: "fuldmagt has been added successfully",
-                data: {
-                    fuldmagt: fuldmagt
-                }
-            })
-        }
-        catch(err){
-            return res.status(500).send({
-                success: false,
-                message: err.message
-            });
-        }
-    },
+    
 
     async approveFuldmagtRequest(req, res, next){
         try{

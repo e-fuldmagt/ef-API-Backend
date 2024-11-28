@@ -1,5 +1,5 @@
 const fuldmagtRepository = {
-    async createFuldmagt(){ //Will be expensive function
+    async createFuldmagt({fuldmagtFormId, }){ //Will be expensive function
         
     },
     async requestFuldmagt(){ //Will be expensive function

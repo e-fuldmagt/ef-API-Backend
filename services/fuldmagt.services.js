@@ -3,6 +3,11 @@ const notificationServices = require("./notification.services")
 const { sendEmail } = require("./MailService")
 const mongoose = require("mongoose")
 const NotificationSetting = require("../models/notificationSettings")
+const User = require("../models/user")
+const Fuldmagt = require("../models/fuldmagt")
+const Company = require("../models/company")
+const fuldmagtFormRepository = require("../repositories/fuldmagtForm.repositories")
+const createHttpError = require("http-errors")
 
 const revokedFuldmagtEmailTemplate = (fuldmagt)=>{
     return `
@@ -297,6 +302,85 @@ const createFuldmagtRequestTemplate = (fuldmagtRequest) => {
 };
 
 const fuldmagtServices = {
+    async createFuldmagt(userId, fuldmagtData){
+        
+        //Setting Up Agent//
+        let agentId = fuldmagtData.agentId;
+        let agent = null;
+        if(agentId){
+            agent = await User.findById(agentId);
+
+            if(!agent){
+                throw createHttpError.NotFound("agent not found by given Id")
+            }
+
+            fuldmagtData.agentName = agent.name.firstName + " " + agent.name.lastName;
+            fuldmagtData.agentPhone = agent.phone,
+            fuldmagtData.agentDOB = agent.dateOfBirth,
+            fuldmagtData.agentEmail = agent.email
+        }
+
+        //Setting Up Fuldmagt Giver//
+        let fuldmagtGiver = await User.findById(userId);
+        if(fuldmagtData.accountType == "user"){
+            fuldmagtData.fuldmagtGiverImage = fuldmagtGiver.image;
+            fuldmagtData.fuldmagtGiverId = fuldmagtGiver._id;
+            fuldmagtData.fuldmagtGiverName = fuldmagtGiver.name.firstName + " " + fuldmagtGiver.name.lastName
+        }else if(fuldmagtData.accountType == "company"){
+            if(!req.company)
+                throw createHttpError.BadRequest("Company is not registered on user")
+            
+            let company = await Company.findById(req.company);
+            fuldmagtData.fuldmagtGiverImage = fuldmagtGiver.image;
+            fuldmagtData.fuldmagtGiverId = company._id;
+            fuldmagtData.fuldmagtGiverName = company.companyName;
+        }
+
+        //--------------Matching Additional Fields from Fuldmagt Form///
+        let fuldmagtForm = await fuldmagtFormRepository.getSpecificFuldmagtFormByUser(userId, fuldmagtData.fuldmagtFormId);
+        if(!fuldmagtForm){
+            throw createHttpError.BadRequest("Fuldmagt Form Id is not valid")
+        }
+        console.log(fuldmagtForm)
+        for(let i = 0; i<fuldmagtForm.additionalFields.length; i++){
+            if(fuldmagtForm.additionalFieldsType[i] == "headline" || fuldmagtForm.additionalFieldsType[i]=="note" ||
+                fuldmagtForm.additionalFieldsType[i] == "textField" || fuldmagtForm.additionalFieldsType[i] == "textArea" ||
+                fuldmagtForm.additionalFieldsType[i] == "radioButtons"
+            ){
+                if(! (fuldmagtData.additionalFieldsData[i] instanceof String || typeof fuldmagtData.additionalFieldsData[i] == "string")){
+                    throw createHttpError.BadRequest("Data for field " + fuldmagtForm.additionalFields[i]+" is not correct")
+                }
+            }
+            else if (
+                fuldmagtForm.additionalFieldsType[i] == "date"
+            ){
+                
+                try{
+                    fuldmagtData.additionalFieldsData[i] = new Date (fuldmagtData.additionalFieldsData[i])
+                }
+                catch (err){
+                    throw createHttpError.BadRequest("Data for field " + fuldmagtForm.additionalFields[i]+" is not correct")
+                }
+            }
+            else if (
+                fuldmagtForm.additionalFieldsType[i] == "checkBoxes"
+            ){
+                if(!Array.isArray(fuldmagtData.additionalFieldsData[i])){
+                    throw createHttpError.BadRequest("Data for field " + fuldmagtForm.additionalFields[i]+" is not correct")
+                }
+            }
+        }        
+
+        console.log(fuldmagtData)
+        
+        let fuldmagt = new Fuldmagt(fuldmagtData);
+
+        await fuldmagt.save();
+
+        fuldmagtServices.notifyFuldmagtCreation(fuldmagt, agent)
+
+        return fuldmagt;
+    },
     async notifyFuldmagtRequest(fuldmagtRequest, fuldmagtGiver){
         if(!fuldmagtGiver){
             let emailSubject = fuldmagtRequest.agentName + " has requested the fuldmagt " + fuldmagtRequest.title;
