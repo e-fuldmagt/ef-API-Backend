@@ -371,7 +371,7 @@ const fuldmagtServices = {
             }
         }        
 
-        fuldmagtData.fuldmagtStatment = fuldmagtForm.fuldmagtStatement;
+        fuldmagtData.fuldmagtStatement = fuldmagtForm.fuldmagtStatement;
         
         let fuldmagt = new Fuldmagt(fuldmagtData);
 
