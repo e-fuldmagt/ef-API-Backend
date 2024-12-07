@@ -341,7 +341,7 @@ const fuldmagtServices = {
         if(!fuldmagtForm){
             throw createHttpError.BadRequest("Fuldmagt Form Id is not valid")
         }
-        console.log(fuldmagtForm)
+        
         for(let i = 0; i<fuldmagtForm.additionalFields.length; i++){
             if(fuldmagtForm.additionalFieldsType[i] == "headline" || fuldmagtForm.additionalFieldsType[i]=="note" ||
                 fuldmagtForm.additionalFieldsType[i] == "textField" || fuldmagtForm.additionalFieldsType[i] == "textArea" ||
@@ -371,7 +371,7 @@ const fuldmagtServices = {
             }
         }        
 
-        console.log(fuldmagtData)
+        fuldmagtData.fuldmagtStatment = fuldmagtForm.fuldmagtStatement;
         
         let fuldmagt = new Fuldmagt(fuldmagtData);
 
