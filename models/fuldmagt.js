@@ -72,6 +72,10 @@ const fuldmagtSchema = new Schema({
     type: [Object],
     required: true
   },
+  fuldmagtStatement: {
+    type: String,
+    required: true
+  }
 });
 
 const Fuldmagt = mongoose.model("fuldmagt", fuldmagtSchema, "fuldmagts");
