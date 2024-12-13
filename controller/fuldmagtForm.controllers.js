@@ -1,17 +1,21 @@
 const jwt = require("jsonwebtoken");
 const fuldmagtFormServices = require("../services/fuldmagtForm.services");
 const { dataResponse } = require("../utils/responses");
+const { uploadFileObjectToFirebase } = require("../services/Firebase_SignStorage");
 
 const fuldmagtFormController = {
   // ----------------- register FuldmagtForm By User -----------------
   async addFuldmagtForm(req, res) {
 
-    let {title, icon, additionalFields, additionalFieldsType, additionalFieldsObject,
+    let icon_Object = req.files.icon;
+    let fuldmagt_Object = req.files.fuldmagt_image;
+
+    let {title, additionalFields, additionalFieldsType, additionalFieldsObject,
       isAgentSignRequired, fuldmagtStatement, purchaseType} = req.body;
     
     let fuldmagtForm = await fuldmagtFormServices.createFuldmagtForm({
-      title, icon, additionalFields, additionalFieldsType, additionalFieldsObject,
-      isAgentSignRequired, fuldmagtStatement, purchaseType
+      title, additionalFields, additionalFieldsType, additionalFieldsObject,
+      isAgentSignRequired, fuldmagtStatement, purchaseType, icon_Object, fuldmagt_Object
     });
 
     return res.status(200).send(dataResponse("Fuldmagt Form has been created", {fuldmagtForm}))

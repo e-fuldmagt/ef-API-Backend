@@ -2,14 +2,10 @@ const createHttpError = require("http-errors");
 const FuldmagtForm = require("../models/fuldmagtForm")
 const mongoose = require("mongoose")
 const fuldmagtFormRepository = {
-    async createFuldmagtForm({title, icon, additionalFields, additionalFieldsType, additionalFieldsObject, isAgentSignRequired, purchaseType, fuldmagtStatement }){ //Will be expensive function
-        let fuldmagtForm = new FuldmagtForm({title, icon, additionalFields, additionalFieldsType, additionalFieldsObject, 
+    async createFuldmagtForm({title, icon, fuldmagt_image, additionalFields, additionalFieldsType, additionalFieldsObject, isAgentSignRequired, purchaseType, fuldmagtStatement }){ //Will be expensive function
+        let fuldmagtForm = new FuldmagtForm({title, icon, fuldmagt_image, additionalFields, additionalFieldsType, additionalFieldsObject, 
             isAgentSignRequired, purchaseType, fuldmagtStatement })
-        console.log(
-            additionalFields.length,
-            additionalFieldsType.length,
-            additionalFieldsObject
-        )
+
         if(additionalFields.length != additionalFieldsType.length || additionalFieldsType.length !=additionalFieldsObject.length){
             throw createHttpError.BadRequest("Additionals fields are not correct");
         }

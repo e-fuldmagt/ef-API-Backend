@@ -12,6 +12,10 @@ const fuldmagtFormSchema = new Schema({
     type: String,
     required: true,
   },
+  fuldmagt_image: {
+    type: String,
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

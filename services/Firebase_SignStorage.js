@@ -77,4 +77,16 @@ const uploadFileObjectToFirebase = async (fileObject, userId) => {
 
   return publicUrl;
 }
-module.exports = { upload, uploadFileToFirebase, uploadFileToFirebaseWithoutDeletingPrevious, uploadFileObjectToFirebase };
+
+const uploadFileObjectToFirebaseByAdmin = async (fileObject) => {
+  if(!fileObject)
+    return;
+
+  const fileName = `${Date.now()}_${fileObject.originalname}`;
+  const storageRef = ref(storage, `uploads/${fileName}`);
+  await uploadBytes(storageRef, fileObject.buffer, { contentType: fileObject.mimetype });
+  const publicUrl = await getDownloadURL(storageRef);
+
+  return publicUrl;
+}
+module.exports = { upload, uploadFileToFirebase, uploadFileToFirebaseWithoutDeletingPrevious, uploadFileObjectToFirebase, uploadFileObjectToFirebaseByAdmin };

@@ -4,12 +4,15 @@ const { sendEmail } = require("./MailService")
 const mongoose = require("mongoose")
 const FulmagtForm = require("../models/fuldmagtForm")
 const fuldmagtFormRepository = require("../repositories/fuldmagtForm.repositories")
+const { uploadFileObjectToFirebaseByAdmin } = require("./Firebase_SignStorage")
 
 const fuldmagtFormServices = {
-    async createFuldmagtForm({title, icon, additionalFields, additionalFieldsType, additionalFieldsObject,
-        isAgentSignRequired, fuldmagtStatement, purchaseType
+    async createFuldmagtForm({title, additionalFields, additionalFieldsType, additionalFieldsObject,
+        isAgentSignRequired, fuldmagtStatement, purchaseType, icon_Object, fuldmagt_Object
     }){
-        let fulmagtForm = await fuldmagtFormRepository.createFuldmagtForm({title, icon, additionalFields, additionalFieldsType, additionalFieldsObject,
+        let icon = await uploadFileObjectToFirebaseByAdmin(icon_Object)
+        let fuldmagt_image = await uploadFileObjectToFirebaseByAdmin(fuldmagt_Object)
+        let fulmagtForm = await fuldmagtFormRepository.createFuldmagtForm({title, icon, fuldmagt_image, additionalFields, additionalFieldsType, additionalFieldsObject,
             isAgentSignRequired, fuldmagtStatement, purchaseType})
 
         return fulmagtForm;
