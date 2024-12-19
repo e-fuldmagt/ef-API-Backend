@@ -2,16 +2,16 @@ const createHttpError = require("http-errors");
 const FuldmagtForm = require("../models/fuldmagtForm")
 const mongoose = require("mongoose")
 const fuldmagtFormRepository = {
-    async createFuldmagtForm({title, icon, fuldmagt_image, additionalFields, additionalFieldsType, additionalFieldsObject, isAgentSignRequired, purchaseType, fuldmagtStatement }){ //Will be expensive function
-        let fuldmagtForm = new FuldmagtForm({title, icon, fuldmagt_image, additionalFields, additionalFieldsType, additionalFieldsObject, 
-            isAgentSignRequired, purchaseType, fuldmagtStatement })
+    async createFuldmagtForm({title, price, additionalFields, additionalFieldsType, additionalFieldsObject,
+        isAgentSignRequired, fuldmagtStatement, purchaseType, icon, fuldmagt_image, exceptUsers, exceptCompanies, selectedUsers, selectedCompanies}){ //Will be expensive function
+        let fuldmagtForm = new FuldmagtForm({title, price, additionalFields, additionalFieldsType, additionalFieldsObject,
+            isAgentSignRequired, fuldmagtStatement, purchaseType, icon, fuldmagt_image, exceptUsers, exceptCompanies, selectedUsers, selectedCompanies})
 
         if(additionalFields.length != additionalFieldsType.length || additionalFieldsType.length !=additionalFieldsObject.length){
             throw createHttpError.BadRequest("Additionals fields are not correct");
         }
 
         for(let i = 0; i<additionalFields.length; i++){
-            console.log(additionalFieldsType[i])
             if(
                 (additionalFieldsType[i] == "headline" && additionalFieldsObject[i].text == undefined )|| 
                 (additionalFieldsType[i] == "note" && additionalFieldsObject[i].text == undefined ) ||

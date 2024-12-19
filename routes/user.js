@@ -4,9 +4,7 @@ const express = require("express");
 const userOtpController = require("../controller/user/otp")
 const userController = require("../controller/user/user");
 const userSignatureController = require("../controller/user/signature")
-
 const {upload, uploadFileToFirebase, uploadFileObjectToFirebase} = require("../services/Firebase_SignStorage")
-
 const User = require('../models/user');
 const authGuard = require("../middleware/authGuard.middleware");
 const notificationController = require("../controller/notifications/notifications");

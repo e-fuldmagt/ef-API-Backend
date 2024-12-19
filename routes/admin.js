@@ -14,7 +14,7 @@ adminRouter.delete('/users/:id', userController.deleteUser);
 
 //Fuldmagt Forms//
 adminRouter.post('/fuldmagt-forms',
-    decode64FilesMiddleware(["icon", "fuldmagt_image"]),
+    decode64FilesMiddleware(["fuldmagt_image"]),
     errorHandler(fuldmagtFormController.addFuldmagtForm));
 adminRouter.get('/fuldmagt-forms', fuldmagtFormController.getFuldmagtForms);
 adminRouter.get('/fuldmagt-forms/:id', fuldmagtFormController.getSpecificFuldmagtForm);

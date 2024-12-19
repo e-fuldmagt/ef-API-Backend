@@ -5,17 +5,16 @@ const { uploadFileObjectToFirebase } = require("../services/Firebase_SignStorage
 
 const fuldmagtFormController = {
   // ----------------- register FuldmagtForm By User -----------------
-  async addFuldmagtForm(req, res) {
+  async addFuldmagtForm(req, res, next) {
 
-    let icon_Object = req.files.icon;
     let fuldmagt_Object = req.files.fuldmagt_image;
 
     let {title, additionalFields, additionalFieldsType, additionalFieldsObject,
-      isAgentSignRequired, fuldmagtStatement, purchaseType} = req.body;
+      isAgentSignRequired, fuldmagtStatement, purchaseType, icon, exceptUsers, exceptCompanies, selectedUsers, selectedCompanies} = req.body;
     
     let fuldmagtForm = await fuldmagtFormServices.createFuldmagtForm({
       title, additionalFields, additionalFieldsType, additionalFieldsObject,
-      isAgentSignRequired, fuldmagtStatement, purchaseType, icon_Object, fuldmagt_Object
+        isAgentSignRequired, fuldmagtStatement, purchaseType, icon, fuldmagt_Object, exceptUsers, exceptCompanies, selectedUsers, selectedCompanies
     });
 
     return res.status(200).send(dataResponse("Fuldmagt Form has been created", {fuldmagtForm}))
